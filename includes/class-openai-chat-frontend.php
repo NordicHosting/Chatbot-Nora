@@ -91,7 +91,7 @@ class OpenAI_Chat_Frontend {
             <form class="openai-chat-form">
                 <input type="text" 
                        class="openai-chat-input" 
-                       placeholder="<?php esc_attr_e('Type your message...', 'openai-chat'); ?>"
+                       placeholder="<?php esc_attr_e('Spør om hva som helst', 'openai-chat'); ?>"
                        aria-label="<?php esc_attr_e('Chat message', 'openai-chat'); ?>"
                        required>
                 <button type="submit" class="openai-chat-submit">
@@ -135,6 +135,13 @@ class OpenAI_Chat_Frontend {
                 'body' => json_encode(array(
                     'model' => 'gpt-3.5-turbo',
                     'messages' => array(
+                        array(
+                            'role' => 'system',
+                            'content' => sprintf(
+                                'You are a helpful assistant. Respond in the same language as the user message. If you cannot determine the language, respond in %s.',
+                                get_locale()
+                            )
+                        ),
                         array(
                             'role' => 'user',
                             'content' => $message
