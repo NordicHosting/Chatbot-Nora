@@ -46,19 +46,18 @@ class OpenAI_Chat {
      * Initialize admin functionality
      */
     private function init_admin(): void {
-        // Include admin class
-        require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat-admin.php';
+        require_once plugin_dir_path(__FILE__) . 'class-openai-chat-admin.php';
+        require_once plugin_dir_path(__FILE__) . 'class-openai-chat-faq.php';
+        require_once plugin_dir_path(__FILE__) . 'class-openai-chat-logs.php';
         
-        // Initialize admin
         $admin = new OpenAI_Chat_Admin();
         $admin->init();
-
-        // Include FAQ class
-        require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat-faq.php';
         
-        // Initialize FAQ
         $faq = new OpenAI_Chat_FAQ();
         $faq->init();
+        
+        $logs = new OpenAI_Chat_Logs();
+        $logs->init();
     }
 
     /**

@@ -157,6 +157,13 @@ class OpenAI_Chat_Frontend {
             return;
         }
 
+        // Get session ID
+        $session_id = $this->get_session_id();
+
+        // Log user message
+        $logs = new OpenAI_Chat_Logs();
+        $logs->log_message($session_id, 'user', $message);
+
         // Detect language of the question
         $language = $this->detect_language($message);
 
@@ -170,11 +177,28 @@ class OpenAI_Chat_Frontend {
         $response = $this->send_to_openai($message, $system_message, $language);
 
         if (is_wp_error($response)) {
+            // Log error
+            $logs->log_message($session_id, 'error', $response->get_error_message());
             wp_send_json_error($response->get_error_message());
             return;
         }
 
+        // Log assistant response
+        $logs->log_message($session_id, 'assistant', $response);
+
         wp_send_json_success(array('response' => $response));
+    }
+
+    /**
+     * Get session ID
+     */
+    private function get_session_id(): string {
+        if (!isset($_COOKIE['openai_chat_session'])) {
+            $session_id = wp_generate_uuid4();
+            setcookie('openai_chat_session', $session_id, time() + (86400 * 30), '/');
+            return $session_id;
+        }
+        return sanitize_text_field($_COOKIE['openai_chat_session']);
     }
 
     /**

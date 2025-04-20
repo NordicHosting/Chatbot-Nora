@@ -1,0 +1,152 @@
+<?php
+/**
+ * Handles chat logging functionality
+ *
+ * @package OpenAI_Chat
+ */
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Chat logging class
+ */
+class OpenAI_Chat_Logs {
+    /**
+     * Initialize logging functionality
+     */
+    public function init(): void {
+        // Add menu page
+        add_action('admin_menu', array($this, 'add_menu_page'));
+        
+        // Add AJAX handler for clearing logs
+        add_action('wp_ajax_openai_chat_clear_logs', array($this, 'clear_logs'));
+    }
+
+    /**
+     * Add menu page for logs
+     */
+    public function add_menu_page(): void {
+        add_submenu_page(
+            'openai-chat',
+            __('Chat Logs', 'openai-chat'),
+            __('Chat Logs', 'openai-chat'),
+            'manage_options',
+            'openai-chat-logs',
+            array($this, 'render_logs_page')
+        );
+    }
+
+    /**
+     * Log a chat message
+     */
+    public function log_message(string $session_id, string $type, string $content): void {
+        global $wpdb;
+        
+        $wpdb->insert(
+            $wpdb->prefix . 'openai_chat_messages',
+            array(
+                'session_id' => $session_id,
+                'message_type' => $type,
+                'content' => $content,
+                'created_at' => current_time('mysql')
+            ),
+            array('%s', '%s', '%s', '%s')
+        );
+    }
+
+    /**
+     * Get chat logs
+     */
+    private function get_logs(int $limit = 50): array {
+        global $wpdb;
+        
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}openai_chat_messages 
+                 ORDER BY created_at DESC 
+                 LIMIT %d",
+                $limit
+            ),
+            ARRAY_A
+        );
+    }
+
+    /**
+     * Clear all logs
+     */
+    public function clear_logs(): void {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+            return;
+        }
+
+        global $wpdb;
+        $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}openai_chat_messages");
+        
+        wp_send_json_success();
+    }
+
+    /**
+     * Render logs page
+     */
+    public function render_logs_page(): void {
+        $logs = $this->get_logs();
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Chat Logs', 'openai-chat'); ?></h1>
+            
+            <div class="tablenav top">
+                <div class="alignleft actions">
+                    <button type="button" class="button" id="clear-logs">
+                        <?php esc_html_e('Clear All Logs', 'openai-chat'); ?>
+                    </button>
+                </div>
+            </div>
+
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Time', 'openai-chat'); ?></th>
+                        <th><?php esc_html_e('Session ID', 'openai-chat'); ?></th>
+                        <th><?php esc_html_e('Type', 'openai-chat'); ?></th>
+                        <th><?php esc_html_e('Content', 'openai-chat'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($logs as $log): ?>
+                        <tr>
+                            <td><?php echo esc_html($log['created_at']); ?></td>
+                            <td><?php echo esc_html(substr($log['session_id'], 0, 8) . '...'); ?></td>
+                            <td><?php echo esc_html($log['message_type']); ?></td>
+                            <td><?php echo wp_kses_post($log['content']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <script>
+            jQuery(document).ready(function($) {
+                $('#clear-logs').on('click', function() {
+                    if (confirm('<?php esc_html_e('Are you sure you want to clear all logs?', 'openai-chat'); ?>')) {
+                        $.post(ajaxurl, {
+                            action: 'openai_chat_clear_logs',
+                            nonce: '<?php echo wp_create_nonce('openai_chat_clear_logs'); ?>'
+                        }, function(response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                alert('<?php esc_html_e('Failed to clear logs', 'openai-chat'); ?>');
+                            }
+                        });
+                    }
+                });
+            });
+            </script>
+        </div>
+        <?php
+    }
+} 
