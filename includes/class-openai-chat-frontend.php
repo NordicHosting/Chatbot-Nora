@@ -139,83 +139,116 @@ class OpenAI_Chat_Frontend {
     public function handle_message(): void {
         // Verify nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'openai_chat_nonce')) {
-            wp_send_json_error(__('Invalid nonce', 'openai-chat'));
+            wp_send_json_error('Invalid nonce');
+            return;
+        }
+
+        // Check if API key is configured
+        $api_key = get_option('openai_chat_api_key');
+        if (empty($api_key)) {
+            wp_send_json_error('API key not configured');
             return;
         }
 
         // Get message
-        $message = isset($_POST['message']) ? sanitize_text_field($_POST['message']) : '';
+        $message = sanitize_text_field($_POST['message']);
         if (empty($message)) {
-            wp_send_json_error(__('Message is required', 'openai-chat'));
+            wp_send_json_error('Empty message');
             return;
         }
 
-        // Get API key
+        // Detect language of the question
+        $language = $this->detect_language($message);
+
+        // Get FAQ knowledge
+        $faq_knowledge = $this->get_faq_knowledge();
+
+        // Prepare system message based on language
+        $system_message = $this->get_system_message($language, $faq_knowledge);
+
+        // Send to OpenAI API
+        $response = $this->send_to_openai($message, $system_message, $language);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error($response->get_error_message());
+            return;
+        }
+
+        wp_send_json_success(array('response' => $response));
+    }
+
+    /**
+     * Detect language of the message
+     */
+    private function detect_language($message) {
+        // Simple language detection based on common words
+        $english_words = array('the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i');
+        $norwegian_words = array('og', 'er', 'det', 'som', 'på', 'til', 'for', 'med', 'har', 'jeg');
+
+        $message = strtolower($message);
+        $english_count = 0;
+        $norwegian_count = 0;
+
+        foreach ($english_words as $word) {
+            if (strpos($message, $word) !== false) {
+                $english_count++;
+            }
+        }
+
+        foreach ($norwegian_words as $word) {
+            if (strpos($message, $word) !== false) {
+                $norwegian_count++;
+            }
+        }
+
+        return $english_count > $norwegian_count ? 'en' : 'no';
+    }
+
+    /**
+     * Get system message based on language
+     */
+    private function get_system_message($language, $faq_knowledge) {
+        if ($language === 'en') {
+            return "You are a helpful assistant. Use the following FAQ knowledge to answer questions. If the answer is in Norwegian, translate it to English before responding:\n\n" . $faq_knowledge;
+        } else {
+            return "Du er en hjelpsom assistent. Bruk følgende FAQ-kunnskap til å svare på spørsmål:\n\n" . $faq_knowledge;
+        }
+    }
+
+    /**
+     * Send message to OpenAI API with language consideration
+     */
+    private function send_to_openai($message, $system_message, $language) {
         $api_key = get_option('openai_chat_api_key');
-        if (empty($api_key)) {
-            wp_send_json_error(__('API key is not configured', 'openai-chat'));
-            return;
-        }
+        $model = get_option('openai_chat_model', 'gpt-3.5-turbo');
 
-        try {
-            $faq_knowledge = $this->get_faq_knowledge();
-            $system_message = sprintf(
-                'You are Nora, a helpful assistant. Respond in the same language as the user message. If you cannot determine the language, respond in %s. Keep responses concise and helpful.%s',
-                get_locale(),
-                $faq_knowledge
-            );
-
-            $response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json',
+        $response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $api_key,
+                'Content-Type' => 'application/json',
+            ),
+            'body' => json_encode(array(
+                'model' => $model,
+                'messages' => array(
+                    array('role' => 'system', 'content' => $system_message),
+                    array('role' => 'user', 'content' => $message)
                 ),
-                'body' => json_encode(array(
-                    'model' => 'gpt-3.5-turbo',
-                    'messages' => array(
-                        array(
-                            'role' => 'system',
-                            'content' => $system_message
-                        ),
-                        array(
-                            'role' => 'user',
-                            'content' => $message
-                        )
-                    ),
-                    'temperature' => 0.7,
-                    'max_tokens' => 1000
-                )),
-                'timeout' => 30
-            ));
+                'temperature' => 0.7,
+                'max_tokens' => 1000
+            )),
+            'timeout' => 30
+        ));
 
-            if (is_wp_error($response)) {
-                error_log('OpenAI Chat: API request failed - ' . $response->get_error_message());
-                wp_send_json_error(__('Failed to connect to OpenAI API', 'openai-chat'));
-                return;
-            }
-
-            $response_code = wp_remote_retrieve_response_code($response);
-            if ($response_code !== 200) {
-                $error_message = wp_remote_retrieve_response_message($response);
-                error_log('OpenAI Chat: API request failed with status ' . $response_code . ' - ' . $error_message);
-                wp_send_json_error(__('OpenAI API request failed', 'openai-chat'));
-                return;
-            }
-
-            $body = json_decode(wp_remote_retrieve_body($response), true);
-            if (!isset($body['choices'][0]['message']['content'])) {
-                error_log('OpenAI Chat: Invalid API response format');
-                wp_send_json_error(__('Invalid response from OpenAI API', 'openai-chat'));
-                return;
-            }
-
-            wp_send_json_success(array(
-                'message' => $message,
-                'response' => $body['choices'][0]['message']['content']
-            ));
-        } catch (Exception $e) {
-            error_log('OpenAI Chat: Exception - ' . $e->getMessage());
-            wp_send_json_error(__('An unexpected error occurred', 'openai-chat'));
+        if (is_wp_error($response)) {
+            return $response;
         }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        if (isset($body['error'])) {
+            return new WP_Error('openai_error', $body['error']['message']);
+        }
+
+        return $body['choices'][0]['message']['content'];
     }
 } 
