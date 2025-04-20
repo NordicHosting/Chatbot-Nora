@@ -82,7 +82,7 @@ class OpenAI_Chat_Frontend {
                     --secondary-color: <?php echo esc_attr($styling['secondary_color'] ?? '#23282d'); ?>;
                     --border-radius: <?php echo esc_attr($styling['border_radius'] ?? '4px'); ?>;">
             <div class="openai-chat-header">
-                <h3 class="openai-chat-title"><?php esc_html_e('Chat with AI', 'openai-chat'); ?></h3>
+                <h3 class="openai-chat-title"><?php esc_html_e('Chat with Nora', 'openai-chat'); ?></h3>
                 <button type="button" class="openai-chat-toggle" aria-label="<?php esc_attr_e('Toggle chat', 'openai-chat'); ?>">
                     <span class="dashicons dashicons-arrow-up-alt2"></span>
                 </button>

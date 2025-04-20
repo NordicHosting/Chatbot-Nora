@@ -16,6 +16,9 @@ msgstr ""
 "Language: nb_NO\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "Chat with Nora"
+msgstr "Chat med Nora"
+
 msgid "OpenAI Chat Settings"
 msgstr "OpenAI Chat Innstillinger"
 
