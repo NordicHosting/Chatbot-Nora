@@ -11,6 +11,7 @@
     flex-direction: column;
     z-index: 999999;
     transition: all 0.3s ease;
+    font-size: 14px;
 }
 
 .openai-chat-container.minimized {
@@ -32,6 +33,7 @@
 .openai-chat-title {
     margin: 0;
     font-size: 16px;
+    font-weight: 500;
 }
 
 .openai-chat-toggle {
@@ -48,26 +50,45 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    background: #f8f9fa;
 }
 
 .openai-chat-message {
     max-width: 80%;
-    padding: 10px 15px;
-    border-radius: var(--border-radius);
-    margin-bottom: 10px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
+    border-radius: 12px;
 }
 
-.openai-chat-message.user {
+.openai-chat-message-user {
     background: var(--primary-color);
     color: #fff;
     align-self: flex-end;
+    margin-left: 20%;
+    border-bottom-right-radius: 4px;
 }
 
-.openai-chat-message.assistant {
-    background: #f0f0f0;
-    color: var(--secondary-color);
+.openai-chat-message-assistant {
+    background: #fff;
+    color: #333;
     align-self: flex-start;
+    margin-right: 20%;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.openai-chat-message-error {
+    background: #fff3f3;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+    align-self: center;
+    max-width: 90%;
+    border-radius: 8px;
 }
 
 .openai-chat-form {
@@ -75,6 +96,7 @@
     border-top: 1px solid #eee;
     display: flex;
     gap: 10px;
+    background: #fff;
 }
 
 .openai-chat-input {
@@ -83,6 +105,7 @@
     border: 1px solid #ddd;
     border-radius: var(--border-radius);
     outline: none;
+    font-size: 14px;
 }
 
 .openai-chat-input:focus {
@@ -97,6 +120,7 @@
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: background 0.3s ease;
+    font-size: 14px;
 }
 
 .openai-chat-submit:hover {
@@ -106,4 +130,22 @@
 .openai-chat-submit:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+/* Scrollbar styling */
+.openai-chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.openai-chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.openai-chat-messages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.openai-chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #555;
 } 
