@@ -66,7 +66,7 @@
             const $message = $('<div>')
                 .addClass('openai-chat-message')
                 .addClass(`openai-chat-message-${type}`)
-                .text(content);
+                .html(content);
             $messages.append($message);
             $messages.scrollTop($messages[0].scrollHeight);
         }
