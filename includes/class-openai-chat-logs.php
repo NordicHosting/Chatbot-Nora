@@ -61,17 +61,39 @@ class OpenAI_Chat_Logs {
     /**
      * Get chat logs
      */
-    private function get_logs(int $limit = 50): array {
+    private function get_logs(int $limit = 50, ?string $session_id = null): array {
         global $wpdb;
+        
+        $where = '';
+        $params = array($limit);
+        
+        if ($session_id) {
+            $where = 'WHERE session_id = %s';
+            $params = array($session_id, $limit);
+        }
         
         return $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}openai_chat_messages 
+                 {$where}
                  ORDER BY created_at DESC 
                  LIMIT %d",
-                $limit
+                $params
             ),
             ARRAY_A
+        );
+    }
+
+    /**
+     * Get unique session IDs
+     */
+    private function get_session_ids(): array {
+        global $wpdb;
+        
+        return $wpdb->get_col(
+            "SELECT DISTINCT session_id 
+             FROM {$wpdb->prefix}openai_chat_messages 
+             ORDER BY created_at DESC"
         );
     }
 
@@ -94,13 +116,23 @@ class OpenAI_Chat_Logs {
      * Render logs page
      */
     public function render_logs_page(): void {
-        $logs = $this->get_logs();
+        $session_id = isset($_GET['session_id']) ? sanitize_text_field($_GET['session_id']) : null;
+        $logs = $this->get_logs(50, $session_id);
+        $sessions = $this->get_session_ids();
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Chat Logs', 'openai-chat'); ?></h1>
             
             <div class="tablenav top">
                 <div class="alignleft actions">
+                    <select id="session-filter">
+                        <option value=""><?php esc_html_e('All Sessions', 'openai-chat'); ?></option>
+                        <?php foreach ($sessions as $sid): ?>
+                            <option value="<?php echo esc_attr($sid); ?>" <?php selected($session_id, $sid); ?>>
+                                <?php echo esc_html(substr($sid, 0, 8) . '...'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                     <button type="button" class="button" id="clear-logs">
                         <?php esc_html_e('Clear All Logs', 'openai-chat'); ?>
                     </button>
@@ -118,9 +150,13 @@ class OpenAI_Chat_Logs {
                 </thead>
                 <tbody>
                     <?php foreach ($logs as $log): ?>
-                        <tr>
+                        <tr class="message-type-<?php echo esc_attr($log['message_type']); ?>">
                             <td><?php echo esc_html($log['created_at']); ?></td>
-                            <td><?php echo esc_html(substr($log['session_id'], 0, 8) . '...'); ?></td>
+                            <td>
+                                <a href="?page=openai-chat-logs&session_id=<?php echo esc_attr($log['session_id']); ?>">
+                                    <?php echo esc_html(substr($log['session_id'], 0, 8) . '...'); ?>
+                                </a>
+                            </td>
                             <td><?php echo esc_html($log['message_type']); ?></td>
                             <td><?php echo wp_kses_post($log['content']); ?></td>
                         </tr>
@@ -128,8 +164,32 @@ class OpenAI_Chat_Logs {
                 </tbody>
             </table>
 
+            <style>
+                .message-type-user {
+                    background-color: #f0f7ff;
+                }
+                .message-type-assistant {
+                    background-color: #f8f8f8;
+                }
+                .message-type-error {
+                    background-color: #fff0f0;
+                }
+                #session-filter {
+                    margin-right: 10px;
+                }
+            </style>
+
             <script>
             jQuery(document).ready(function($) {
+                $('#session-filter').on('change', function() {
+                    var sessionId = $(this).val();
+                    if (sessionId) {
+                        window.location.href = '?page=openai-chat-logs&session_id=' + sessionId;
+                    } else {
+                        window.location.href = '?page=openai-chat-logs';
+                    }
+                });
+
                 $('#clear-logs').on('click', function() {
                     if (confirm('<?php esc_html_e('Are you sure you want to clear all logs?', 'openai-chat'); ?>')) {
                         $.post(ajaxurl, {
