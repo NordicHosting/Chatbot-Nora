@@ -74,15 +74,9 @@ class OpenAI_Chat_Stats {
                 </div>
 
                 <div class="openai-chat-stats-chart-container">
-                    <h3><?php esc_html_e('Messages per Day', 'openai-chat'); ?></h3>
+                    <h3><?php esc_html_e('Chat Activity', 'openai-chat'); ?></h3>
                     <div class="openai-chat-stats-chart-wrapper">
                         <canvas id="openai-chat-stats-chart" width="800" height="300"></canvas>
-                    </div>
-                </div>
-                <div class="openai-chat-stats-chart-container">
-                    <h3><?php esc_html_e('Sessions per Day', 'openai-chat'); ?></h3>
-                    <div class="openai-chat-stats-chart-wrapper">
-                        <canvas id="openai-chat-stats-sessions-chart" width="800" height="300"></canvas>
                     </div>
                 </div>
             </div>
@@ -135,27 +129,38 @@ class OpenAI_Chat_Stats {
         <script>
             jQuery(document).ready(function($) {
                 // Function to create chart
-                function createChart(elementId, data, labels, title) {
+                function createChart(elementId, messagesData, sessionsData, labels) {
                     const ctx = document.getElementById(elementId).getContext('2d');
                     return new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: labels,
-                            datasets: [{
-                                label: title,
-                                data: data,
-                                borderColor: '#0073aa',
-                                backgroundColor: 'rgba(0, 115, 170, 0.1)',
-                                fill: true,
-                                tension: 0.4
-                            }]
+                            datasets: [
+                                {
+                                    label: '<?php esc_html_e('Messages', 'openai-chat'); ?>',
+                                    data: messagesData,
+                                    borderColor: '#0073aa',
+                                    backgroundColor: 'rgba(0, 115, 170, 0.1)',
+                                    fill: true,
+                                    tension: 0.4
+                                },
+                                {
+                                    label: '<?php esc_html_e('Sessions', 'openai-chat'); ?>',
+                                    data: sessionsData,
+                                    borderColor: '#46b450',
+                                    backgroundColor: 'rgba(70, 180, 80, 0.1)',
+                                    fill: true,
+                                    tension: 0.4
+                                }
+                            ]
                         },
                         options: {
                             responsive: false,
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: {
-                                    display: false
+                                    display: true,
+                                    position: 'top'
                                 }
                             },
                             scales: {
@@ -175,7 +180,18 @@ class OpenAI_Chat_Stats {
                     });
                 }
 
-                // Load messages chart
+                // Load both messages and sessions data
+                let messagesData = null;
+                let sessionsData = null;
+                let labels = null;
+
+                function checkAndCreateChart() {
+                    if (messagesData && sessionsData && labels) {
+                        createChart('openai-chat-stats-chart', messagesData, sessionsData, labels);
+                    }
+                }
+
+                // Load messages data
                 $.ajax({
                     url: ajaxurl,
                     type: 'POST',
@@ -185,17 +201,14 @@ class OpenAI_Chat_Stats {
                     },
                     success: function(response) {
                         if (response.success) {
-                            createChart(
-                                'openai-chat-stats-chart',
-                                response.data.data,
-                                response.data.labels,
-                                '<?php esc_html_e('Messages per Day', 'openai-chat'); ?>'
-                            );
+                            messagesData = response.data.data;
+                            labels = response.data.labels;
+                            checkAndCreateChart();
                         }
                     }
                 });
 
-                // Load sessions chart
+                // Load sessions data
                 $.ajax({
                     url: ajaxurl,
                     type: 'POST',
@@ -205,12 +218,8 @@ class OpenAI_Chat_Stats {
                     },
                     success: function(response) {
                         if (response.success) {
-                            createChart(
-                                'openai-chat-stats-sessions-chart',
-                                response.data.data,
-                                response.data.labels,
-                                '<?php esc_html_e('Sessions per Day', 'openai-chat'); ?>'
-                            );
+                            sessionsData = response.data.data;
+                            checkAndCreateChart();
                         }
                     }
                 });
