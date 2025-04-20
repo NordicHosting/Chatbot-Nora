@@ -52,6 +52,13 @@ class OpenAI_Chat {
         // Initialize admin
         $admin = new OpenAI_Chat_Admin();
         $admin->init();
+
+        // Include FAQ class
+        require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat-faq.php';
+        
+        // Initialize FAQ
+        $faq = new OpenAI_Chat_FAQ();
+        $faq->init();
     }
 
     /**

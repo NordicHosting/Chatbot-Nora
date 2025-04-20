@@ -103,6 +103,37 @@ class OpenAI_Chat_Frontend {
     }
 
     /**
+     * Get FAQ knowledge for the AI
+     */
+    private function get_faq_knowledge(): string {
+        $faqs = get_posts(array(
+            'post_type' => 'faq',
+            'post_status' => 'publish',
+            'numberposts' => -1
+        ));
+
+        if (empty($faqs)) {
+            return '';
+        }
+
+        $knowledge = "\n\nHere is some knowledge about the website:\n";
+        foreach ($faqs as $faq) {
+            $keywords = get_post_meta($faq->ID, '_faq_keywords', true);
+            $category = get_post_meta($faq->ID, '_faq_category', true);
+            
+            $knowledge .= sprintf(
+                "\nQuestion: %s\nAnswer: %s\nKeywords: %s\nCategory: %s\n",
+                $faq->post_title,
+                $faq->post_content,
+                $keywords,
+                $category
+            );
+        }
+
+        return $knowledge;
+    }
+
+    /**
      * Handle message submission
      */
     public function handle_message(): void {
@@ -127,6 +158,13 @@ class OpenAI_Chat_Frontend {
         }
 
         try {
+            $faq_knowledge = $this->get_faq_knowledge();
+            $system_message = sprintf(
+                'You are Nora, a helpful assistant. Respond in the same language as the user message. If you cannot determine the language, respond in %s. Keep responses concise and helpful.%s',
+                get_locale(),
+                $faq_knowledge
+            );
+
             $response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
                 'headers' => array(
                     'Authorization' => 'Bearer ' . $api_key,
@@ -137,10 +175,7 @@ class OpenAI_Chat_Frontend {
                     'messages' => array(
                         array(
                             'role' => 'system',
-                            'content' => sprintf(
-                                'You are a helpful assistant. Respond in the same language as the user message. If you cannot determine the language, respond in %s.',
-                                get_locale()
-                            )
+                            'content' => $system_message
                         ),
                         array(
                             'role' => 'user',

@@ -33,6 +33,7 @@ class OpenAI_Chat_Admin {
      * Add admin menu
      */
     public function add_admin_menu(): void {
+        // Add main menu
         add_menu_page(
             __('OpenAI Chat Settings', 'openai-chat'),
             __('OpenAI Chat', 'openai-chat'),
@@ -40,6 +41,16 @@ class OpenAI_Chat_Admin {
             'openai-chat',
             array($this, 'render_settings_page'),
             'dashicons-format-chat'
+        );
+
+        // Add settings submenu
+        add_submenu_page(
+            'openai-chat',
+            __('OpenAI Chat Settings', 'openai-chat'),
+            __('Settings', 'openai-chat'),
+            'manage_options',
+            'openai-chat',
+            array($this, 'render_settings_page')
         );
     }
 
