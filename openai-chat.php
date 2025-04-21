@@ -24,6 +24,7 @@ define('OPENAI_CHAT_VERSION', '1.0.1');
 define('OPENAI_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('OPENAI_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('OPENAI_CHAT_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define('OPENAI_CHAT_PLUGIN_FILE', __FILE__);
 
 // Include required files
 require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat.php';
@@ -46,23 +47,12 @@ function openai_chat_github_update($transient) {
     $plugin_data = get_plugin_data(OPENAI_CHAT_PLUGIN_FILE);
     $current_version = $plugin_data['Version'];
     
-    // Get GitHub token
-    $github_token = get_option('openai_chat_github_token');
-    
-    // Prepare API request
-    $args = array(
+    // Get latest release from public repo
+    $response = wp_remote_get('https://api.github.com/repos/NordicHosting/Chatbot-Nora/releases/latest', array(
         'headers' => array(
-            'Accept' => 'application/vnd.github.v3+json',
+            'Accept' => 'application/vnd.github.v3+json'
         )
-    );
-    
-    // Add token if available
-    if (!empty($github_token)) {
-        $args['headers']['Authorization'] = 'token ' . $github_token;
-    }
-    
-    // Get latest release
-    $response = wp_remote_get('https://api.github.com/repos/NordicHosting/Chatbot-Nora/releases/latest', $args);
+    ));
     
     if (is_wp_error($response)) {
         return $transient;
@@ -96,74 +86,4 @@ function openai_chat_add_headers($headers) {
     $headers[] = 'GitHub Plugin URI';
     $headers[] = 'GitHub Branch';
     return $headers;
-}
-
-/**
- * Register settings
- */
-public function register_settings(): void {
-    register_setting('openai_chat_settings', 'openai_chat_api_key');
-    register_setting('openai_chat_settings', 'openai_chat_styling', array(
-        'type' => 'array',
-        'default' => array(
-            'primary_color' => '#0073aa',
-            'secondary_color' => '#23282d',
-            'border_radius' => '4px'
-        )
-    ));
-    register_setting('openai_chat_settings', 'openai_chat_enabled', array(
-        'type' => 'boolean',
-        'default' => true
-    ));
-    register_setting('openai_chat_settings', 'openai_chat_github_token', array(
-        'type' => 'string',
-        'default' => ''
-    ));
-}
-
-/**
- * Render settings page
- */
-public function render_settings_page(): void {
-    if (!current_user_can('manage_options')) {
-        return;
-    }
-    ?>
-    <div class="wrap">
-        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-        <form action="options.php" method="post">
-            <?php
-            settings_fields('openai_chat_settings');
-            do_settings_sections('openai_chat_settings');
-            ?>
-            <table class="form-table">
-                <tr>
-                    <th scope="row">
-                        <label for="openai_chat_github_token">
-                            <?php esc_html_e('GitHub Token', 'openai-chat'); ?>
-                        </label>
-                    </th>
-                    <td>
-                        <input 
-                            type="password" 
-                            id="openai_chat_github_token" 
-                            name="openai_chat_github_token" 
-                            value="<?php echo esc_attr(get_option('openai_chat_github_token')); ?>" 
-                            class="regular-text"
-                        />
-                        <p class="description">
-                            <?php esc_html_e('Enter your GitHub personal access token for private repository access', 'openai-chat'); ?>
-                            <br>
-                            <a href="https://github.com/settings/tokens" target="_blank">
-                                <?php esc_html_e('Generate a new token', 'openai-chat'); ?>
-                            </a>
-                        </p>
-                    </td>
-                </tr>
-                <!-- ... existing settings ... -->
-            </table>
-            <?php submit_button(); ?>
-        </form>
-    </div>
-    <?php
 } 

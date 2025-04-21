@@ -71,10 +71,6 @@ class OpenAI_Chat_Admin {
             'type' => 'boolean',
             'default' => true
         ));
-        register_setting('openai_chat_settings', 'openai_chat_github_token', array(
-            'type' => 'string',
-            'default' => ''
-        ));
     }
 
     /**
@@ -203,29 +199,6 @@ class OpenAI_Chat_Admin {
                             />
                             <p class="description">
                                 <?php esc_html_e('Enter your OpenAI API key', 'openai-chat'); ?>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="openai_chat_github_token">
-                                <?php esc_html_e('GitHub Token', 'openai-chat'); ?>
-                            </label>
-                        </th>
-                        <td>
-                            <input 
-                                type="password" 
-                                id="openai_chat_github_token" 
-                                name="openai_chat_github_token" 
-                                value="<?php echo esc_attr(get_option('openai_chat_github_token')); ?>" 
-                                class="regular-text"
-                            />
-                            <p class="description">
-                                <?php esc_html_e('Enter your GitHub personal access token for private repository access', 'openai-chat'); ?>
-                                <br>
-                                <a href="https://github.com/settings/tokens" target="_blank">
-                                    <?php esc_html_e('Generate a new token', 'openai-chat'); ?>
-                                </a>
                             </p>
                         </td>
                     </tr>
