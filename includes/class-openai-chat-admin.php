@@ -157,7 +157,12 @@ class OpenAI_Chat_Admin {
         }
         ?>
         <div class="wrap">
-            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+            <h1>
+                <?php echo esc_html(get_admin_page_title()); ?>
+                <span class="version" style="font-size: 0.8em; color: #666; font-weight: normal;">
+                    <?php echo esc_html(sprintf(__('Version %s', 'openai-chat'), OPENAI_CHAT_VERSION)); ?>
+                </span>
+            </h1>
             <form action="options.php" method="post">
                 <?php
                 settings_fields('openai_chat_settings');
