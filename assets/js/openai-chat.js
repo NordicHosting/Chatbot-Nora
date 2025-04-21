@@ -14,9 +14,10 @@
         const $input = $container.find('.openai-chat-input');
         const $submit = $container.find('.openai-chat-submit');
         const $toggle = $('.openai-chat-toggle');
+        const $header = $('.openai-chat-header');
 
         // Check if required elements exist
-        if (!$container.length || !$messages.length || !$form.length || !$input.length || !$submit.length || !$toggle.length) {
+        if (!$container.length || !$messages.length || !$form.length || !$input.length || !$submit.length || !$toggle.length || !$header.length) {
             console.error('OpenAI Chat: Required elements not found');
             return;
         }
@@ -29,6 +30,7 @@
         // Set initial state
         if (chatState.isOpen) {
             $container.removeClass('minimized');
+            updateToggleIcon();
         }
         
         // Load messages
@@ -37,12 +39,17 @@
         });
 
         // Toggle chat window
-        $toggle.on('click', function(e) {
-            e.preventDefault();
+        function toggleChat(e) {
+            if (e) {
+                e.preventDefault();
+            }
             console.log('OpenAI Chat: Toggle clicked');
             console.log('Current state:', $container.hasClass('minimized') ? 'minimized' : 'expanded');
             $container.toggleClass('minimized');
             console.log('New state:', $container.hasClass('minimized') ? 'minimized' : 'expanded');
+            
+            // Update toggle icon
+            updateToggleIcon();
             
             // Save chat state
             saveChatState();
@@ -52,6 +59,25 @@
                 setTimeout(() => {
                     $input.focus();
                 }, 300);
+            }
+        }
+
+        // Update toggle icon based on chat state
+        function updateToggleIcon() {
+            const $icon = $toggle.find('.dashicons');
+            if ($container.hasClass('minimized')) {
+                $icon.removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
+            } else {
+                $icon.removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+            }
+        }
+
+        // Add click handlers
+        $toggle.on('click', toggleChat);
+        $header.on('click', function(e) {
+            // Only toggle if clicking on header, not on toggle button
+            if (!$(e.target).closest('.openai-chat-toggle').length) {
+                toggleChat(e);
             }
         });
 
