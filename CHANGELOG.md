@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.6] - 2024-03-21
+### Fixed
+- Fikset problem med tabellopprettelse på live nettsider
+- Flyttet tabellopprettelse til register_activation_hook
+- Lagt til bedre feilhåndtering for database-operasjoner
+
 ## [1.0.5] - 2024-03-21
 ### Fixed
 - Fikset problem med logging og statistikk

@@ -3,7 +3,7 @@
  * Plugin Name: OpenAI Chat
  * Plugin URI: https://github.com/NordicHosting/Chatbot-Nora
  * Description: En WordPress plugin som integrerer OpenAI API for chat-funksjonalitet på nettstedet.
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: Jon Bjorseth
  * Author URI: https://jonbjorseth.no
  * License: GPL v2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('OPENAI_CHAT_VERSION', '1.0.5');
+define('OPENAI_CHAT_VERSION', '1.0.6');
 define('OPENAI_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('OPENAI_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('OPENAI_CHAT_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -35,6 +35,41 @@ function openai_chat_init() {
     $plugin->init();
 }
 add_action('plugins_loaded', 'openai_chat_init');
+
+/**
+ * Create database tables on plugin activation
+ */
+function openai_chat_activate() {
+    global $wpdb;
+    $charset_collate = $wpdb->get_charset_collate();
+
+    // Create messages table
+    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_messages (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        session_id varchar(36) NOT NULL,
+        message_type varchar(20) NOT NULL,
+        content text NOT NULL,
+        created_at datetime NOT NULL,
+        PRIMARY KEY  (id),
+        KEY session_id (session_id)
+    ) $charset_collate;";
+
+    // Create sessions table
+    $sql .= "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_sessions (
+        session_id varchar(36) NOT NULL,
+        last_activity datetime NOT NULL,
+        PRIMARY KEY  (session_id)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    $result = dbDelta($sql);
+
+    // Log any errors
+    if (is_wp_error($result)) {
+        error_log('OpenAI Chat: Database table creation failed - ' . $result->get_error_message());
+    }
+}
+register_activation_hook(__FILE__, 'openai_chat_activate');
 
 /**
  * Add settings link to plugins page
