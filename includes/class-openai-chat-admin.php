@@ -67,6 +67,10 @@ class OpenAI_Chat_Admin {
                 'border_radius' => '4px'
             )
         ));
+        register_setting('openai_chat_settings', 'openai_chat_enabled', array(
+            'type' => 'boolean',
+            'default' => true
+        ));
     }
 
     /**
@@ -160,6 +164,25 @@ class OpenAI_Chat_Admin {
                 do_settings_sections('openai_chat_settings');
                 ?>
                 <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="openai_chat_enabled">
+                                <?php esc_html_e('Enable Chat', 'openai-chat'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input 
+                                type="checkbox" 
+                                id="openai_chat_enabled" 
+                                name="openai_chat_enabled" 
+                                value="1" 
+                                <?php checked(get_option('openai_chat_enabled', true)); ?>
+                            />
+                            <p class="description">
+                                <?php esc_html_e('Enable or disable the chat interface on the frontend', 'openai-chat'); ?>
+                            </p>
+                        </td>
+                    </tr>
                     <tr>
                         <th scope="row">
                             <label for="openai_chat_api_key">

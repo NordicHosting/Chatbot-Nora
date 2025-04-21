@@ -19,6 +19,11 @@ class OpenAI_Chat_Frontend {
      * Initialize frontend functionality
      */
     public function init(): void {
+        // Check if chat is enabled
+        if (!get_option('openai_chat_enabled', true)) {
+            return;
+        }
+
         // Enqueue scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
 
