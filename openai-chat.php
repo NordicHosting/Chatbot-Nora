@@ -6,10 +6,10 @@
  * Version: 1.0.4
  * Author: Jon Bjorseth
  * Author URI: https://jonbjorseth.no
- * Text Domain: openai-chat
- * Domain Path: /languages
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: openai-chat
+ * Domain Path: /languages
  * GitHub Plugin URI: NordicHosting/Chatbot-Nora
  * GitHub Branch: main
  */

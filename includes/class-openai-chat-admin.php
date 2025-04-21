@@ -203,7 +203,7 @@ class OpenAI_Chat_Admin {
                                 class="regular-text"
                             />
                             <p class="description">
-                                <?php esc_html_e('Enter your OpenAI API key', 'openai-chat'); ?>
+                                <?php esc_html_e('Your OpenAI API key', 'openai-chat'); ?>
                             </p>
                         </td>
                     </tr>
