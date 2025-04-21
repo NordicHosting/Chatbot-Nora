@@ -56,7 +56,7 @@ function openai_chat_activate() {
     $charset_collate = $wpdb->get_charset_collate();
 
     // Create messages table
-    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_messages (
+    $messages_table = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_messages (
         id bigint(20) NOT NULL AUTO_INCREMENT,
         session_id varchar(36) NOT NULL,
         message_type varchar(20) NOT NULL,
@@ -67,18 +67,31 @@ function openai_chat_activate() {
     ) $charset_collate;";
 
     // Create sessions table
-    $sql .= "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_sessions (
+    $sessions_table = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_sessions (
         session_id varchar(36) NOT NULL,
         last_activity datetime NOT NULL,
         PRIMARY KEY  (session_id)
     ) $charset_collate;";
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    $result = dbDelta($sql);
+    
+    // Create tables separately for better error handling
+    $messages_result = $wpdb->query($messages_table);
+    if ($messages_result === false) {
+        error_log('OpenAI Chat: Failed to create messages table - ' . $wpdb->last_error);
+    }
 
-    // Log any errors
-    if (is_wp_error($result)) {
-        error_log('OpenAI Chat: Database table creation failed - ' . $result->get_error_message());
+    $sessions_result = $wpdb->query($sessions_table);
+    if ($sessions_result === false) {
+        error_log('OpenAI Chat: Failed to create sessions table - ' . $wpdb->last_error);
+    }
+
+    // Verify tables exist
+    $messages_exists = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}openai_chat_messages'") === "{$wpdb->prefix}openai_chat_messages";
+    $sessions_exists = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}openai_chat_sessions'") === "{$wpdb->prefix}openai_chat_sessions";
+
+    if (!$messages_exists || !$sessions_exists) {
+        error_log('OpenAI Chat: Tables verification failed - Messages: ' . ($messages_exists ? 'Yes' : 'No') . ', Sessions: ' . ($sessions_exists ? 'Yes' : 'No'));
     }
 }
 register_activation_hook(__FILE__, 'openai_chat_activate');
