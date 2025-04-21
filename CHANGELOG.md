@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2024-03-21
+### Fixed
+- Fikset problem med logging og statistikk
+- Lagt til automatisk opprettelse av databasetabeller
+- Forbedret håndtering av sesjons-IDer
+- Optimalisert database-spørringer
+
 ## [1.0.4] - 2024-03-21
 ### Added
 - Automatisk scrolling til bunnen av chat-vinduet
