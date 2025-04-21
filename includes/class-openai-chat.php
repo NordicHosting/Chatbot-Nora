@@ -29,6 +29,9 @@ class OpenAI_Chat {
 
         // Initialize frontend functionality
         $this->init_frontend();
+
+        // Create database tables
+        $this->create_tables();
     }
 
     /**
@@ -90,5 +93,34 @@ class OpenAI_Chat {
         // Initialize frontend
         $frontend = new OpenAI_Chat_Frontend();
         $frontend->init();
+    }
+
+    /**
+     * Create database tables
+     */
+    private function create_tables(): void {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+
+        // Create messages table
+        $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_messages (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            session_id varchar(36) NOT NULL,
+            message_type varchar(20) NOT NULL,
+            content text NOT NULL,
+            created_at datetime NOT NULL,
+            PRIMARY KEY  (id),
+            KEY session_id (session_id)
+        ) $charset_collate;";
+
+        // Create sessions table
+        $sql .= "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}openai_chat_sessions (
+            session_id varchar(36) NOT NULL,
+            last_activity datetime NOT NULL,
+            PRIMARY KEY  (session_id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
     }
 } 
