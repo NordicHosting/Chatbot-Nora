@@ -76,7 +76,7 @@ class OpenAI_Chat_Frontend {
                     'error' => __('An error occurred. Please try again.', 'openai-chat'),
                     'emptyMessage' => __('Please enter a message.', 'openai-chat'),
                     'sending' => __('Sending...', 'openai-chat'),
-                    'thinking' => __('AI is thinking...', 'openai-chat'),
+                    'thinking' => get_locale() === 'nb_NO' ? __('Nora tenker...', 'openai-chat') : __('Nora is thinking...', 'openai-chat'),
                 )
             )
         );
@@ -200,7 +200,7 @@ class OpenAI_Chat_Frontend {
             ));
 
             if (is_wp_error($response)) {
-                error_log('OpenAI Chat: API request failed - ' . $response->get_error_message());
+                error_log('OpenAI Chat API Error: ' . $response->get_error_message());
                 wp_send_json_error(__('Failed to connect to OpenAI API', 'openai-chat'));
                 return;
             }
@@ -208,14 +208,15 @@ class OpenAI_Chat_Frontend {
             $response_code = wp_remote_retrieve_response_code($response);
             if ($response_code !== 200) {
                 $error_message = wp_remote_retrieve_response_message($response);
-                error_log('OpenAI Chat: API request failed with status ' . $response_code . ' - ' . $error_message);
-                wp_send_json_error(__('OpenAI API request failed', 'openai-chat'));
+                $response_body = wp_remote_retrieve_body($response);
+                error_log('OpenAI Chat API Error: HTTP ' . $response_code . ' - ' . $error_message . ' - ' . $response_body);
+                wp_send_json_error(__('OpenAI API returned an error', 'openai-chat'));
                 return;
             }
 
             $body = json_decode(wp_remote_retrieve_body($response), true);
             if (!isset($body['choices'][0]['message']['content'])) {
-                error_log('OpenAI Chat: Invalid API response format');
+                error_log('OpenAI Chat API Error: Invalid response format - ' . wp_remote_retrieve_body($response));
                 wp_send_json_error(__('Invalid response from OpenAI API', 'openai-chat'));
                 return;
             }

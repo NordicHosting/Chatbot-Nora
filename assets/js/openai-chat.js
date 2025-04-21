@@ -15,6 +15,7 @@
         const $submit = $container.find('.openai-chat-submit');
         const $toggle = $('.openai-chat-toggle');
         const $header = $('.openai-chat-header');
+        let thinkingMessage = null;
 
         // Check if required elements exist
         if (!$container.length || !$messages.length || !$form.length || !$input.length || !$submit.length || !$toggle.length || !$header.length) {
@@ -99,41 +100,9 @@
             $input.val('');
 
             // Show thinking message
-            const thinkingMessage = addMessage('assistant', openaiChat.i18n.thinking, true);
+            thinkingMessage = addMessage('assistant', openaiChat.i18n.thinking, true);
 
             // Send message to server
-            sendMessage(message);
-        });
-
-        /**
-         * Add a message to the chat
-         * @param {string} type - Message type (user or assistant)
-         * @param {string} content - Message content
-         */
-        function addMessage(type, content, isTemporary = false) {
-            console.log(`OpenAI Chat: Adding ${type} message`);
-            const $message = $('<div>')
-                .addClass('openai-chat-message')
-                .addClass(`openai-chat-message-${type}`)
-                .html(content);
-            $messages.append($message);
-            $messages.scrollTop($messages[0].scrollHeight);
-
-            // Only save non-temporary messages
-            if (!isTemporary) {
-                saveChatState();
-            }
-
-            return $message;
-        }
-
-        /**
-         * Send message to server
-         * @param {string} message - Message to send
-         */
-        function sendMessage(message) {
-            console.log('OpenAI Chat: Sending message to server');
-            
             $.ajax({
                 url: openaiChat.ajaxUrl,
                 type: 'POST',
@@ -162,7 +131,7 @@
                         thinkingMessage.remove();
                         
                         console.error('OpenAI Chat: Error response', response);
-                        addMessage('assistant', openaiChat.i18n.error);
+                        addMessage('assistant', response.data || openaiChat.i18n.error);
                     }
                 },
                 error: function(xhr, status, error) {
@@ -171,7 +140,7 @@
                     thinkingMessage.remove();
                     
                     // Show error message
-                    addMessage('error', openaiChat.i18n.error);
+                    addMessage('assistant', openaiChat.i18n.error);
                 },
                 complete: function() {
                     console.log('OpenAI Chat: AJAX request complete');
@@ -181,6 +150,28 @@
                     $messages.scrollTop($messages[0].scrollHeight);
                 }
             });
+        });
+
+        /**
+         * Add a message to the chat
+         * @param {string} type - Message type (user or assistant)
+         * @param {string} content - Message content
+         */
+        function addMessage(type, content, isTemporary = false) {
+            console.log(`OpenAI Chat: Adding ${type} message`);
+            const $message = $('<div>')
+                .addClass('openai-chat-message')
+                .addClass(`openai-chat-message-${type}`)
+                .html(content);
+            $messages.append($message);
+            $messages.scrollTop($messages[0].scrollHeight);
+
+            // Only save non-temporary messages
+            if (!isTemporary) {
+                saveChatState();
+            }
+
+            return $message;
         }
 
         // Save chat state to localStorage
