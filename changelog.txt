@@ -1,0 +1,11 @@
+= 1.0.8 =
+* Lagt til mulighet for å filtrere chat-loggene etter dato
+* Lagt til mulighet for å slette logger eldre enn 7 og 30 dager
+* Forbedret brukergrensesnittet for chat-loggene
+* Oppdatert datoformatet for å vise datoer i et mer lesbart format
+
+= 1.0.7 =
+* Fikset sikkerhetsproblem med API-nøkkel
+* Forbedret feilhåndtering ved API-kall
+* Lagt til støtte for flere språk
+* Oppdatert dokumentasjon 

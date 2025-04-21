@@ -62,10 +62,12 @@ class OpenAI_Chat_Stats {
                     <div class="openai-chat-stats-col">
                         <h3><?php esc_html_e('Total Messages', 'openai-chat'); ?></h3>
                         <p class="openai-chat-stats-number"><?php echo esc_html($stats['total_messages']); ?></p>
+                        <p class="openai-chat-stats-subtext"><?php printf(__('Across %d sessions', 'openai-chat'), $stats['total_sessions']); ?></p>
                     </div>
                     <div class="openai-chat-stats-col">
                         <h3><?php esc_html_e('Today\'s Messages', 'openai-chat'); ?></h3>
                         <p class="openai-chat-stats-number"><?php echo esc_html($stats['today_messages']); ?></p>
+                        <p class="openai-chat-stats-subtext"><?php printf(__('Across %d sessions', 'openai-chat'), $stats['today_sessions']); ?></p>
                     </div>
                     <div class="openai-chat-stats-col">
                         <h3><?php esc_html_e('Average Messages/Chat', 'openai-chat'); ?></h3>
@@ -108,6 +110,11 @@ class OpenAI_Chat_Stats {
                 font-size: 24px;
                 font-weight: bold;
                 color: #0073aa;
+            }
+            .openai-chat-stats-subtext {
+                margin: 5px 0 0 0;
+                font-size: 12px;
+                color: #666;
             }
             .openai-chat-stats-chart-container {
                 background: #fff;
@@ -254,20 +261,35 @@ class OpenAI_Chat_Stats {
             $wpdb->prepare(
                 "SELECT COUNT(*) 
                 FROM {$wpdb->prefix}openai_chat_messages 
-                WHERE DATE(created_at) = %s",
-                date('Y-m-d')
+                WHERE created_at >= %s",
+                date('Y-m-d 00:00:00')
+            )
+        );
+
+        // Get total sessions
+        $total_sessions = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}openai_chat_sessions"
+        );
+
+        // Get today's sessions
+        $today_sessions = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) 
+                FROM {$wpdb->prefix}openai_chat_sessions 
+                WHERE last_activity >= %s",
+                date('Y-m-d 00:00:00')
             )
         );
 
         // Calculate average messages per chat
-        $avg_messages = $total_messages > 0 ? 
-            round($total_messages / $wpdb->get_var("SELECT COUNT(DISTINCT session_id) FROM {$wpdb->prefix}openai_chat_sessions"), 1) : 
-            0;
+        $avg_messages = $total_sessions > 0 ? round($total_messages / $total_sessions, 1) : 0;
 
         return array(
-            'active_chats' => $active_chats ?: 0,
-            'total_messages' => $total_messages ?: 0,
-            'today_messages' => $today_messages ?: 0,
+            'active_chats' => $active_chats,
+            'total_messages' => $total_messages,
+            'today_messages' => $today_messages,
+            'total_sessions' => $total_sessions,
+            'today_sessions' => $today_sessions,
             'avg_messages' => $avg_messages
         );
     }

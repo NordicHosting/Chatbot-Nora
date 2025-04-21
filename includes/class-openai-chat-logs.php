@@ -22,8 +22,9 @@ class OpenAI_Chat_Logs {
         // Add menu page
         add_action('admin_menu', array($this, 'add_menu_page'));
         
-        // Add AJAX handler for clearing logs
+        // Add AJAX handlers
         add_action('wp_ajax_openai_chat_clear_logs', array($this, 'clear_logs'));
+        add_action('wp_ajax_openai_chat_clear_old_logs', array($this, 'clear_old_logs'));
     }
 
     /**
@@ -59,23 +60,43 @@ class OpenAI_Chat_Logs {
     }
 
     /**
-     * Get chat logs
+     * Get unique dates from messages
      */
-    private function get_logs(int $limit = 50, ?string $session_id = null): array {
+    private function get_dates(): array {
         global $wpdb;
         
-        $where = '';
+        return $wpdb->get_col(
+            "SELECT DISTINCT DATE(created_at) as date 
+             FROM {$wpdb->prefix}openai_chat_messages 
+             ORDER BY date DESC"
+        );
+    }
+
+    /**
+     * Get chat logs
+     */
+    public function get_logs(int $limit = 50, ?string $session_id = null, ?string $date = null): array {
+        global $wpdb;
+        
+        $where = array();
         $params = array($limit);
         
         if ($session_id) {
-            $where = 'WHERE session_id = %s';
+            $where[] = 'session_id = %s';
             $params = array($session_id, $limit);
         }
+        
+        if ($date) {
+            $where[] = 'DATE(created_at) = %s';
+            array_splice($params, -1, 0, array($date));
+        }
+        
+        $where_clause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
         
         return $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}openai_chat_messages 
-                 {$where}
+                 {$where_clause}
                  ORDER BY created_at DESC 
                  LIMIT %d",
                 $params
@@ -113,12 +134,48 @@ class OpenAI_Chat_Logs {
     }
 
     /**
+     * Clear logs older than specified days
+     */
+    public function clear_old_logs(): void {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+            return;
+        }
+
+        $days = isset($_POST['days']) ? intval($_POST['days']) : 0;
+        if ($days <= 0) {
+            wp_send_json_error('Invalid number of days');
+            return;
+        }
+
+        global $wpdb;
+        $result = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->prefix}openai_chat_messages 
+                 WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+                $days
+            )
+        );
+
+        if ($result === false) {
+            wp_send_json_error('Failed to clear old logs');
+            return;
+        }
+
+        wp_send_json_success(array(
+            'deleted' => $result
+        ));
+    }
+
+    /**
      * Render logs page
      */
     public function render_logs_page(): void {
         $session_id = isset($_GET['session_id']) ? sanitize_text_field($_GET['session_id']) : null;
-        $logs = $this->get_logs(50, $session_id);
+        $date = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : null;
+        $logs = $this->get_logs(50, $session_id, $date);
         $sessions = $this->get_session_ids();
+        $dates = $this->get_dates();
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Chat Logs', 'openai-chat'); ?></h1>
@@ -133,8 +190,22 @@ class OpenAI_Chat_Logs {
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <select id="date-filter">
+                        <option value=""><?php esc_html_e('All Dates', 'openai-chat'); ?></option>
+                        <?php foreach ($dates as $d): ?>
+                            <option value="<?php echo esc_attr($d); ?>" <?php selected($date, $d); ?>>
+                                <?php echo esc_html(date_i18n(get_option('date_format'), strtotime($d))); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                     <button type="button" class="button" id="clear-logs">
                         <?php esc_html_e('Clear All Logs', 'openai-chat'); ?>
+                    </button>
+                    <button type="button" class="button" id="clear-old-logs-7">
+                        <?php esc_html_e('Clear Logs Older Than 7 Days', 'openai-chat'); ?>
+                    </button>
+                    <button type="button" class="button" id="clear-old-logs-30">
+                        <?php esc_html_e('Clear Logs Older Than 30 Days', 'openai-chat'); ?>
                     </button>
                 </div>
             </div>
@@ -177,18 +248,29 @@ class OpenAI_Chat_Logs {
                 #session-filter {
                     margin-right: 10px;
                 }
+                #date-filter {
+                    margin-right: 10px;
+                }
             </style>
 
             <script>
             jQuery(document).ready(function($) {
-                $('#session-filter').on('change', function() {
-                    var sessionId = $(this).val();
+                function updateFilters() {
+                    var sessionId = $('#session-filter').val();
+                    var date = $('#date-filter').val();
+                    var url = '?page=openai-chat-logs';
+                    
                     if (sessionId) {
-                        window.location.href = '?page=openai-chat-logs&session_id=' + sessionId;
-                    } else {
-                        window.location.href = '?page=openai-chat-logs';
+                        url += '&session_id=' + sessionId;
                     }
-                });
+                    if (date) {
+                        url += '&date=' + date;
+                    }
+                    
+                    window.location.href = url;
+                }
+                
+                $('#session-filter, #date-filter').on('change', updateFilters);
 
                 $('#clear-logs').on('click', function() {
                     if (confirm('<?php esc_html_e('Are you sure you want to clear all logs?', 'openai-chat'); ?>')) {
@@ -203,6 +285,31 @@ class OpenAI_Chat_Logs {
                             }
                         });
                     }
+                });
+
+                function clearOldLogs(days) {
+                    if (confirm('<?php esc_html_e('Are you sure you want to clear logs older than %d days?', 'openai-chat'); ?>'.replace('%d', days))) {
+                        $.post(ajaxurl, {
+                            action: 'openai_chat_clear_old_logs',
+                            days: days,
+                            nonce: '<?php echo wp_create_nonce('openai_chat_clear_old_logs'); ?>'
+                        }, function(response) {
+                            if (response.success) {
+                                alert('<?php esc_html_e('Successfully cleared %d old logs', 'openai-chat'); ?>'.replace('%d', response.data.deleted));
+                                location.reload();
+                            } else {
+                                alert('<?php esc_html_e('Failed to clear old logs', 'openai-chat'); ?>');
+                            }
+                        });
+                    }
+                }
+
+                $('#clear-old-logs-7').on('click', function() {
+                    clearOldLogs(7);
+                });
+
+                $('#clear-old-logs-30').on('click', function() {
+                    clearOldLogs(30);
                 });
             });
             </script>
