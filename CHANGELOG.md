@@ -2,30 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.2] - 2024-04-21
-### Endret
-- Endret fra private til public GitHub repo
-- Fjernet GitHub token støtte
-- Lagt til versjonsnummer på innstillingssiden
-
-## [1.0.1] - 2024-04-21
-### Lagt til
-- Støtte for private GitHub repositorier
-- GitHub token innstillinger
-- Automatiske oppdateringer fra GitHub
-
-## [1.0.0] - 2024-04-21
-### Lagt til
-- Grunnleggende chat-funksjonalitet med OpenAI API
-- Admin-innstillinger for API-nøkkel og styling
-- Responsiv chat-grensesnitt
-- Støtte for flere språk
-- Automatiske oppdateringer fra GitHub
-
+## [1.0.4] - 2024-03-21
 ### Added
-- GitHub update functionality for automatic updates
-- Check for API key configuration before showing chat
-- Option to disable chat in admin settings
+- Automatisk scrolling til bunnen av chat-vinduet
+- Smooth scrolling-animasjon for nye meldinger
+- Bedre håndtering av scroll-posisjon
+
+### Fixed
+- Optimalisert asset-lasting for bedre ytelse
+- Fjernet unødvendige debug-meldinger
+- Endret "AI is thinking..." til "Nora is thinking..." / "Nora tenker..."
+- Fikset scope-problem med thinkingMessage-variabelen
+
+## [1.0.3] - 2024-03-20
+### Added
+- Støtte for GitHub-token for private repositories
+- Mulighet for å velge hvilke FAQ-kategorier som skal inkluderes
+- Bedre feilhåndtering og logging
+
+### Fixed
+- Fikset problem med manglende sesjoner i databasen
+- Forbedret statistikkberegninger
+- Optimalisert database-spørringer
+
+## [1.0.2] - 2024-03-19
+### Added
+- Innstillingslenke i plugins-listen
+- Støtte for å velge hvilke FAQ-kategorier som skal inkluderes
+- Bedre feilhåndtering og logging
+
+### Fixed
+- Fikset problem med manglende sesjoner i databasen
+- Forbedret statistikkberegninger
+- Optimalisert database-spørringer
+
+## [1.0.1] - 2024-03-18
+### Added
+- Støtte for å velge hvilke FAQ-kategorier som skal inkluderes
+- Bedre feilhåndtering og logging
+
+### Fixed
+- Fikset problem med manglende sesjoner i databasen
+- Forbedret statistikkberegninger
+- Optimalisert database-spørringer
+
+## [1.0.0] - 2024-03-17
+### Added
+- Grunnleggende chat-funksjonalitet med OpenAI API
+- FAQ-integrasjon for bedre svar
+- Statistikk og logging
+- Admin-panel for innstillinger
+- Støtte for flere språk
 
 ### Changed
 - Improved chat toggle functionality

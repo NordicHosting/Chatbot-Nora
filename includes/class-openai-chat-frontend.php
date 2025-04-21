@@ -21,14 +21,18 @@ class OpenAI_Chat_Frontend {
     public function init(): void {
         // Check if chat is enabled
         if (!get_option('openai_chat_enabled', true)) {
+            error_log('OpenAI Chat: Chat is disabled');
             return;
         }
 
         // Check if API key is configured
         $api_key = get_option('openai_chat_api_key');
         if (empty($api_key)) {
+            error_log('OpenAI Chat: API key is not configured');
             return;
         }
+
+        error_log('OpenAI Chat: Initializing frontend...');
 
         // Enqueue scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
@@ -45,6 +49,11 @@ class OpenAI_Chat_Frontend {
      * Enqueue scripts and styles
      */
     public function enqueue_assets(): void {
+        // Only load assets if chat is enabled and API key is configured
+        if (!get_option('openai_chat_enabled', true) || empty(get_option('openai_chat_api_key'))) {
+            return;
+        }
+
         // Enqueue Dashicons
         wp_enqueue_style('dashicons');
 

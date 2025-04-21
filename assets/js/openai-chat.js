@@ -6,8 +6,7 @@
 
     // Initialize when document is ready
     $(document).ready(function() {
-        console.log('OpenAI Chat: Initializing...');
-        
+        // Cache DOM elements
         const $container = $('.openai-chat-container');
         const $messages = $container.find('.openai-chat-messages');
         const $form = $container.find('.openai-chat-form');
@@ -19,11 +18,8 @@
 
         // Check if required elements exist
         if (!$container.length || !$messages.length || !$form.length || !$input.length || !$submit.length || !$toggle.length || !$header.length) {
-            console.error('OpenAI Chat: Required elements not found');
             return;
         }
-
-        console.log('OpenAI Chat: Elements found, setting up event handlers');
 
         // Load chat state from localStorage
         const chatState = JSON.parse(localStorage.getItem('openaiChatState') || '{"isOpen":false,"messages":[]}');
@@ -35,48 +31,39 @@
         }
         
         // Load messages
-        chatState.messages.forEach(message => {
-            addMessage(message.type, message.content);
-        });
+        if (chatState.messages.length) {
+            const fragment = document.createDocumentFragment();
+            chatState.messages.forEach(message => {
+                const $message = createMessageElement(message.type, message.content);
+                fragment.appendChild($message[0]);
+            });
+            $messages.append(fragment);
+        }
 
         // Toggle chat window
         function toggleChat(e) {
             if (e) {
                 e.preventDefault();
             }
-            console.log('OpenAI Chat: Toggle clicked');
-            console.log('Current state:', $container.hasClass('minimized') ? 'minimized' : 'expanded');
             $container.toggleClass('minimized');
-            console.log('New state:', $container.hasClass('minimized') ? 'minimized' : 'expanded');
-            
-            // Update toggle icon
             updateToggleIcon();
-            
-            // Save chat state
             saveChatState();
             
-            // Focus input if expanded
             if (!$container.hasClass('minimized')) {
-                setTimeout(() => {
-                    $input.focus();
-                }, 300);
+                setTimeout(() => $input.focus(), 300);
             }
         }
 
         // Update toggle icon based on chat state
         function updateToggleIcon() {
             const $icon = $toggle.find('.dashicons');
-            if ($container.hasClass('minimized')) {
-                $icon.removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
-            } else {
-                $icon.removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
-            }
+            $icon.toggleClass('dashicons-arrow-down-alt2', !$container.hasClass('minimized'))
+                 .toggleClass('dashicons-arrow-up-alt2', $container.hasClass('minimized'));
         }
 
         // Add click handlers
         $toggle.on('click', toggleChat);
         $header.on('click', function(e) {
-            // Only toggle if clicking on header, not on toggle button
             if (!$(e.target).closest('.openai-chat-toggle').length) {
                 toggleChat(e);
             }
@@ -112,38 +99,23 @@
                     message: message
                 },
                 beforeSend: function() {
-                    console.log('OpenAI Chat: AJAX request starting');
                     $submit.prop('disabled', true);
                 },
                 success: function(response) {
-                    console.log('OpenAI Chat: AJAX response received', response);
                     if (response.success) {
-                        // Remove thinking message
                         thinkingMessage.remove();
-                        
-                        // Add assistant message
                         addMessage('assistant', response.data.response);
-                        
-                        // Save chat state
                         saveChatState();
                     } else {
-                        // Remove thinking message
                         thinkingMessage.remove();
-                        
-                        console.error('OpenAI Chat: Error response', response);
                         addMessage('assistant', response.data || openaiChat.i18n.error);
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('OpenAI Chat: AJAX error', error);
-                    // Remove thinking message
                     thinkingMessage.remove();
-                    
-                    // Show error message
                     addMessage('assistant', openaiChat.i18n.error);
                 },
                 complete: function() {
-                    console.log('OpenAI Chat: AJAX request complete');
                     $submit.prop('disabled', false);
                     $input.prop('disabled', false);
                     $input.focus();
@@ -153,20 +125,33 @@
         });
 
         /**
-         * Add a message to the chat
+         * Create a message element
          * @param {string} type - Message type (user or assistant)
          * @param {string} content - Message content
+         * @returns {jQuery} The message element
          */
-        function addMessage(type, content, isTemporary = false) {
-            console.log(`OpenAI Chat: Adding ${type} message`);
-            const $message = $('<div>')
+        function createMessageElement(type, content) {
+            return $('<div>')
                 .addClass('openai-chat-message')
                 .addClass(`openai-chat-message-${type}`)
                 .html(content);
-            $messages.append($message);
-            $messages.scrollTop($messages[0].scrollHeight);
+        }
 
-            // Only save non-temporary messages
+        /**
+         * Add a message to the chat
+         * @param {string} type - Message type (user or assistant)
+         * @param {string} content - Message content
+         * @param {boolean} isTemporary - Whether the message is temporary
+         */
+        function addMessage(type, content, isTemporary = false) {
+            const $message = createMessageElement(type, content);
+            $messages.append($message);
+            
+            // Scroll to bottom with smooth animation
+            $messages.animate({
+                scrollTop: $messages[0].scrollHeight
+            }, 300);
+
             if (!isTemporary) {
                 saveChatState();
             }
@@ -187,5 +172,18 @@
                 messages: messages
             }));
         }
+
+        // Add scroll event listener to save scroll position
+        $messages.on('scroll', function() {
+            const isAtBottom = $messages[0].scrollHeight - $messages.scrollTop() === $messages.outerHeight();
+            if (isAtBottom) {
+                $messages.data('auto-scroll', true);
+            } else {
+                $messages.data('auto-scroll', false);
+            }
+        });
+
+        // Initial scroll to bottom
+        $messages.scrollTop($messages[0].scrollHeight);
     });
 })(jQuery); 
