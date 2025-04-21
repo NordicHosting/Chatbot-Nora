@@ -37,10 +37,22 @@
         });
 
         // Toggle chat window
-        $toggle.on('click', function() {
+        $toggle.on('click', function(e) {
+            e.preventDefault();
+            console.log('OpenAI Chat: Toggle clicked');
+            console.log('Current state:', $container.hasClass('minimized') ? 'minimized' : 'expanded');
             $container.toggleClass('minimized');
+            console.log('New state:', $container.hasClass('minimized') ? 'minimized' : 'expanded');
+            
             // Save chat state
             saveChatState();
+            
+            // Focus input if expanded
+            if (!$container.hasClass('minimized')) {
+                setTimeout(() => {
+                    $input.focus();
+                }, 300);
+            }
         });
 
         // Handle form submission
@@ -145,15 +157,6 @@
             });
         }
 
-        // Auto-focus input when chat is opened
-        $toggle.on('click', function() {
-            if (!$container.hasClass('minimized')) {
-                setTimeout(() => {
-                    $input.focus();
-                }, 300);
-            }
-        });
-
         // Save chat state to localStorage
         function saveChatState() {
             const messages = Array.from($messages.find('.openai-chat-message')).map(message => ({
@@ -168,106 +171,4 @@
             }));
         }
     });
-
-    // Initialize chat
-    function initChat() {
-        // Get chat container and elements
-        const chatContainer = document.querySelector('.openai-chat-container');
-        const chatMessages = chatContainer.querySelector('.openai-chat-messages');
-        const chatForm = chatContainer.querySelector('.openai-chat-form');
-        const chatInput = chatContainer.querySelector('.openai-chat-input');
-        const chatToggle = chatContainer.querySelector('.openai-chat-toggle');
-
-        // Load chat state from localStorage
-        const chatState = JSON.parse(localStorage.getItem('openaiChatState') || '{"isOpen":false,"messages":[]}');
-        
-        // Set initial state
-        if (chatState.isOpen) {
-            chatContainer.classList.remove('minimized');
-        }
-        
-        // Load messages
-        chatState.messages.forEach(message => {
-            addMessage(message.type, message.content);
-        });
-
-        // Toggle chat window
-        chatToggle.addEventListener('click', function() {
-            chatContainer.classList.toggle('minimized');
-            // Save chat state
-            saveChatState();
-        });
-
-        // Handle form submission
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const message = chatInput.value.trim();
-            if (!message) {
-                return;
-            }
-
-            // Add user message
-            addMessage('user', message);
-            
-            // Clear input
-            chatInput.value = '';
-
-            // Send message to server
-            jQuery.ajax({
-                url: openaiChat.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'openai_chat_send_message',
-                    message: message,
-                    nonce: openaiChat.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        addMessage('assistant', response.data.response);
-                        saveChatState();
-                    } else {
-                        addMessage('error', response.data || openaiChat.i18n.error);
-                    }
-                },
-                error: function() {
-                    addMessage('error', openaiChat.i18n.error);
-                }
-            });
-        });
-
-        // Add message to chat
-        function addMessage(type, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `openai-chat-message openai-chat-message-${type}`;
-            messageDiv.innerHTML = content;
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            // Save chat state
-            saveChatState();
-        }
-
-        // Save chat state to localStorage
-        function saveChatState() {
-            const messages = Array.from(chatMessages.querySelectorAll('.openai-chat-message')).map(message => ({
-                type: message.classList.contains('openai-chat-message-user') ? 'user' :
-                      message.classList.contains('openai-chat-message-assistant') ? 'assistant' : 'error',
-                content: message.innerHTML
-            }));
-
-            localStorage.setItem('openaiChatState', JSON.stringify({
-                isOpen: !chatContainer.classList.contains('minimized'),
-                messages: messages
-            }));
-        }
-    }
-
-    // Initialize chat when DOM is loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initChat);
-    } else {
-        initChat();
-    }
 })(jQuery); 
