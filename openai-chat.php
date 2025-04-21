@@ -37,6 +37,16 @@ function openai_chat_init() {
 add_action('plugins_loaded', 'openai_chat_init');
 
 /**
+ * Add settings link to plugins page
+ */
+function openai_chat_add_settings_link($links) {
+    $settings_link = '<a href="' . admin_url('admin.php?page=openai-chat') . '">' . __('Innstillinger', 'openai-chat') . '</a>';
+    array_unshift($links, $settings_link);
+    return $links;
+}
+add_filter('plugin_action_links_' . OPENAI_CHAT_PLUGIN_BASENAME, 'openai_chat_add_settings_link');
+
+/**
  * Check for updates from GitHub
  */
 function openai_chat_github_update($transient) {
