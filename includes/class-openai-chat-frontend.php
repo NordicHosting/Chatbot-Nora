@@ -230,6 +230,28 @@ class OpenAI_Chat_Frontend {
                 return;
             }
 
+            // Get session ID from cookie or generate new one
+            $session_id = isset($_COOKIE['openai_chat_session']) ? sanitize_text_field($_COOKIE['openai_chat_session']) : OpenAI_Chat::generate_uuid4();
+            if (!isset($_COOKIE['openai_chat_session'])) {
+                setcookie('openai_chat_session', $session_id, time() + (86400 * 30), '/'); // 30 days
+            }
+
+            // Log messages
+            $logs = new OpenAI_Chat_Logs();
+            $logs->log_message($session_id, 'user', $message);
+            $logs->log_message($session_id, 'assistant', $body['choices'][0]['message']['content']);
+
+            // Update session activity
+            global $wpdb;
+            $wpdb->replace(
+                $wpdb->prefix . 'openai_chat_sessions',
+                array(
+                    'session_id' => $session_id,
+                    'last_activity' => current_time('mysql')
+                ),
+                array('%s', '%s')
+            );
+
             wp_send_json_success(array(
                 'message' => $message,
                 'response' => $body['choices'][0]['message']['content']
