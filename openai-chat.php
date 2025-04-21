@@ -4,8 +4,8 @@
  * Plugin URI: https://github.com/NordicHosting/Chatbot-Nora
  * Description: En WordPress plugin som integrerer OpenAI API for chat-funksjonalitet på nettstedet.
  * Version: 1.0.6
- * Author: Jon Bjorseth
- * Author URI: https://jonbjorseth.no
+ * Author: Nordic Hosting
+ * Author URI: https://nordic.hosting
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: openai-chat
