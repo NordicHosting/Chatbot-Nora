@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.7] - 2024-03-21
+### Added
+- Lagt til PHP-versjonskrav (7.4+)
+- Lagt til WordPress-versjonstesting (6.5)
+- PHP-versjonssjekk ved aktivering
+
 ## [1.0.6] - 2024-03-21
 ### Fixed
 - Fikset problem med tabellopprettelse på live nettsider
