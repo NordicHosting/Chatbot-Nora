@@ -24,6 +24,12 @@ class OpenAI_Chat_Frontend {
             return;
         }
 
+        // Check if API key is configured
+        $api_key = get_option('openai_chat_api_key');
+        if (empty($api_key)) {
+            return;
+        }
+
         // Enqueue scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
 
