@@ -114,7 +114,7 @@ register_activation_hook(__FILE__, 'openai_chat_activate');
  * Add settings link to plugins page
  */
 function openai_chat_add_settings_link($links) {
-    $settings_link = '<a href="' . admin_url('admin.php?page=openai-chat') . '">' . __('Innstillinger', 'openai-chat') . '</a>';
+    $settings_link = '<a href="' . admin_url('admin.php?page=openai-chat') . '">' . __('Innstillinger', 'chatbot-nora') . '</a>';
     array_unshift($links, $settings_link);
     return $links;
 }
@@ -170,4 +170,17 @@ function openai_chat_add_headers($headers) {
     $headers[] = 'GitHub Plugin URI';
     $headers[] = 'GitHub Branch';
     return $headers;
-} 
+}
+
+// Add menu page
+function openai_chat_add_menu_page() {
+    add_menu_page(
+        __('Chatbot Nora', 'chatbot-nora'),
+        __('Chatbot Nora', 'chatbot-nora'),
+        'manage_options',
+        'openai-chat',
+        'openai_chat_render_admin_page',
+        'dashicons-format-chat'
+    );
+}
+add_action('admin_menu', 'openai_chat_add_menu_page'); 
