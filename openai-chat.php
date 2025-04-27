@@ -1,20 +1,23 @@
 <?php
 /**
  * Plugin Name: OpenAI Chat
- * Plugin URI: https://github.com/NordicHosting/Chatbot-Nora
- * Description: En WordPress plugin som integrerer OpenAI API for chat-funksjonalitet på nettstedet.
- * Version: 1.1.1
+ * Plugin URI: https://nordichosting.no/chatbot-nora
+ * Description: En intelligent chatbot basert på OpenAI's GPT-teknologi som kan hjelpe besøkende på din WordPress-nettside.
+ * Version: 1.1.2
  * Author: Nordic Hosting
- * Author URI: https://nordic.hosting
+ * Author URI: https://nordichosting.no
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: openai-chat
+ * Text Domain: chatbot-nora
  * Domain Path: /languages
  * GitHub Plugin URI: NordicHosting/Chatbot-Nora
  * GitHub Branch: main
+ * Requires at least: 5.8
  * Requires PHP: 7.4
  * Tested up to: 6.8
  */
+
+declare(strict_types=1);
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
@@ -22,7 +25,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('OPENAI_CHAT_VERSION', '1.1.1');
+define('OPENAI_CHAT_VERSION', '1.1.2');
 define('OPENAI_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('OPENAI_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('OPENAI_CHAT_PLUGIN_BASENAME', plugin_basename(__FILE__));
