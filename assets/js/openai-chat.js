@@ -7,14 +7,14 @@
     // Initialize when document is ready
     $(document).ready(function() {
         // Cache DOM elements
-        const $container = $('.openai-chat-container');
-        const $messages = $container.find('.openai-chat-messages');
-        const $form = $container.find('.openai-chat-form');
-        const $input = $container.find('.openai-chat-input');
-        const $submit = $container.find('.openai-chat-submit');
-        const $end = $container.find('.openai-chat-end');
-        const $toggle = $('.openai-chat-toggle');
-        const $header = $('.openai-chat-header');
+        const $container = $('.chatbot-nora-container');
+        const $messages = $container.find('.chatbot-nora-messages');
+        const $form = $container.find('.chatbot-nora-form');
+        const $input = $container.find('.chatbot-nora-input');
+        const $submit = $container.find('.chatbot-nora-submit');
+        const $end = $container.find('.chatbot-nora-end');
+        const $toggle = $('.chatbot-nora-toggle');
+        const $header = $('.chatbot-nora-header');
         let thinkingMessage = null;
 
         // Check if required elements exist
@@ -55,28 +55,28 @@
         // Show welcome message with user info form
         function showWelcomeMessage() {
             const welcomeHtml = `
-                <div class="openai-chat-welcome">
+                <div class="chatbot-nora-welcome">
                     <h3>${openaiChat.i18n.welcomeTitle}</h3>
                     <p>${openaiChat.i18n.welcomeMessage}</p>
-                    <form class="openai-chat-user-form">
-                        <div class="openai-chat-form-group">
+                    <form class="chatbot-nora-user-form">
+                        <div class="chatbot-nora-form-group">
                             <label for="user-name">${openaiChat.i18n.nameLabel}</label>
                             <input type="text" id="user-name" required>
-                            <div class="openai-chat-error" id="name-error"></div>
+                            <div class="chatbot-nora-error" id="name-error"></div>
                         </div>
-                        <div class="openai-chat-form-group">
+                        <div class="chatbot-nora-form-group">
                             <label for="user-email">${openaiChat.i18n.emailLabel}</label>
                             <input type="email" id="user-email">
-                            <div class="openai-chat-error" id="email-error"></div>
+                            <div class="chatbot-nora-error" id="email-error"></div>
                         </div>
-                        <button type="submit" class="openai-chat-start">${openaiChat.i18n.startChat}</button>
+                        <button type="submit" class="chatbot-nora-start">${openaiChat.i18n.startChat}</button>
                     </form>
                 </div>
             `;
             $messages.html(welcomeHtml);
 
             // Handle user info form submission
-            $('.openai-chat-user-form').on('submit', function(e) {
+            $('.chatbot-nora-user-form').on('submit', function(e) {
                 e.preventDefault();
                 
                 const name = $('#user-name').val().trim();
@@ -144,7 +144,7 @@
         // Add click handlers
         $toggle.on('click', toggleChat);
         $header.on('click', function(e) {
-            if (!$(e.target).closest('.openai-chat-toggle').length) {
+            if (!$(e.target).closest('.chatbot-nora-toggle').length) {
                 toggleChat(e);
             }
         });
@@ -243,8 +243,8 @@
          */
         function createMessageElement(type, content) {
             return $('<div>')
-                .addClass('openai-chat-message')
-                .addClass(`openai-chat-message-${type}`)
+                .addClass('chatbot-nora-message')
+                .addClass(`chatbot-nora-message-${type}`)
                 .html(content);
         }
 
@@ -253,48 +253,32 @@
          * @param {string} type - Message type (user or assistant)
          * @param {string} content - Message content
          * @param {boolean} isTemporary - Whether the message is temporary
+         * @returns {jQuery} The message element
          */
         function addMessage(type, content, isTemporary = false) {
             const $message = createMessageElement(type, content);
             $messages.append($message);
-            
-            // Scroll to bottom with smooth animation
-            $messages.animate({
-                scrollTop: $messages[0].scrollHeight
-            }, 300);
-
-            if (!isTemporary) {
-                saveChatState();
-            }
-
-            return $message;
+            $messages.scrollTop($messages[0].scrollHeight);
+            return isTemporary ? $message : null;
         }
 
-        // Save chat state to localStorage
+        /**
+         * Save chat state to localStorage
+         */
         function saveChatState() {
-            const messages = Array.from($messages.find('.openai-chat-message')).map(message => ({
-                type: message.classList.contains('openai-chat-message-user') ? 'user' :
-                      message.classList.contains('openai-chat-message-assistant') ? 'assistant' : 'error',
-                content: message.innerHTML
-            }));
-
+            const messages = [];
+            $messages.find('.chatbot-nora-message').each(function() {
+                const $message = $(this);
+                messages.push({
+                    type: $message.hasClass('chatbot-nora-message-user') ? 'user' : 'assistant',
+                    content: $message.html()
+                });
+            });
+            
             localStorage.setItem('openaiChatState', JSON.stringify({
                 isOpen: !$container.hasClass('minimized'),
                 messages: messages
             }));
         }
-
-        // Add scroll event listener to save scroll position
-        $messages.on('scroll', function() {
-            const isAtBottom = $messages[0].scrollHeight - $messages.scrollTop() === $messages.outerHeight();
-            if (isAtBottom) {
-                $messages.data('auto-scroll', true);
-            } else {
-                $messages.data('auto-scroll', false);
-            }
-        });
-
-        // Initial scroll to bottom
-        $messages.scrollTop($messages[0].scrollHeight);
     });
 })(jQuery); 

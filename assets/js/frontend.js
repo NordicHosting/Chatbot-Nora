@@ -8,11 +8,11 @@
     $(document).ready(function() {
         console.log('OpenAI Chat: Initializing...');
         
-        const $container = $('.openai-chat-container');
-        const $messages = $container.find('.openai-chat-messages');
-        const $form = $container.find('.openai-chat-form');
-        const $input = $('#openai-chat-textarea');
-        const $submit = $container.find('.openai-chat-send');
+        const $container = $('.chatbot-nora-container');
+        const $messages = $container.find('.chatbot-nora-messages');
+        const $form = $container.find('.chatbot-nora-form');
+        const $input = $('#chatbot-nora-textarea');
+        const $submit = $container.find('.chatbot-nora-send');
 
         // Check if required elements exist
         if (!$container.length || !$messages.length || !$form.length || !$input.length || !$submit.length) {
@@ -51,8 +51,8 @@
         function addMessage(type, content) {
             console.log(`OpenAI Chat: Adding ${type} message`);
             const $message = $('<div>')
-                .addClass('openai-chat-message')
-                .addClass(`openai-chat-message-${type}`)
+                .addClass('chatbot-nora-message')
+                .addClass(`chatbot-nora-message-${type}`)
                 .text(content);
             $messages.append($message);
             $messages.scrollTop($messages[0].scrollHeight);

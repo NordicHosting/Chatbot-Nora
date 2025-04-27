@@ -110,29 +110,29 @@ class OpenAI_Chat_Frontend {
     public function render_chat(): void {
         $styling = get_option('openai_chat_styling', array());
         ?>
-        <div class="openai-chat-container minimized" 
+        <div class="chatbot-nora-container minimized" 
              style="--primary-color: <?php echo esc_attr($styling['primary_color'] ?? '#0073aa'); ?>;
                     --secondary-color: <?php echo esc_attr($styling['secondary_color'] ?? '#23282d'); ?>;
                     --border-radius: <?php echo esc_attr($styling['border_radius'] ?? '4px'); ?>;">
-            <div class="openai-chat-header">
-                <h3 class="openai-chat-title"><?php esc_html_e('Chat with Nora', 'openai-chat'); ?></h3>
-                <button type="button" class="openai-chat-toggle" aria-label="<?php esc_attr_e('Toggle chat', 'openai-chat'); ?>">
+            <div class="chatbot-nora-header">
+                <h3 class="chatbot-nora-title"><?php esc_html_e('Chat med Nora', 'chatbot-nora'); ?></h3>
+                <button type="button" class="chatbot-nora-toggle" aria-label="<?php esc_attr_e('Toggle chat', 'chatbot-nora'); ?>">
                     <span class="dashicons dashicons-arrow-up-alt2"></span>
                 </button>
             </div>
-            <div class="openai-chat-messages"></div>
-            <form class="openai-chat-form">
+            <div class="chatbot-nora-messages"></div>
+            <form class="chatbot-nora-form">
                 <input type="text" 
-                       class="openai-chat-input" 
-                       placeholder="<?php esc_attr_e('Spør om hva som helst', 'openai-chat'); ?>"
-                       aria-label="<?php esc_attr_e('Chat message', 'openai-chat'); ?>"
+                       class="chatbot-nora-input" 
+                       placeholder="<?php esc_attr_e('Spør om hva som helst', 'chatbot-nora'); ?>"
+                       aria-label="<?php esc_attr_e('Chat message', 'chatbot-nora'); ?>"
                        required>
-                <div class="openai-chat-buttons">
-                    <button type="submit" class="openai-chat-submit">
-                        <?php esc_html_e('Send', 'openai-chat'); ?>
+                <div class="chatbot-nora-buttons">
+                    <button type="submit" class="chatbot-nora-submit">
+                        <?php esc_html_e('Send', 'chatbot-nora'); ?>
                     </button>
-                    <button type="button" class="openai-chat-end" aria-label="<?php esc_attr_e('End chat', 'openai-chat'); ?>">
-                        <?php esc_html_e('Avslutt', 'openai-chat'); ?>
+                    <button type="button" class="chatbot-nora-end" aria-label="<?php esc_attr_e('End chat', 'chatbot-nora'); ?>">
+                        <?php esc_html_e('Avslutt', 'chatbot-nora'); ?>
                     </button>
                 </div>
             </form>

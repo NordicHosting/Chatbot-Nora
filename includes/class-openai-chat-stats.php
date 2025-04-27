@@ -34,46 +34,46 @@ class OpenAI_Chat_Stats {
         $stats = $this->get_current_stats();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('OpenAI Chat Statistics', 'openai-chat'); ?></h1>
+            <h1><?php esc_html_e('Chatbot Nora Statistics', 'chatbot-nora'); ?></h1>
             
-            <div class="openai-chat-stats-container">
-                <div class="openai-chat-stats-row">
-                    <div class="openai-chat-stats-col">
-                        <h3><?php esc_html_e('Active Chats', 'openai-chat'); ?></h3>
-                        <p class="openai-chat-stats-number"><?php echo esc_html($stats['active_chats']); ?></p>
+            <div class="chatbot-nora-stats-container">
+                <div class="chatbot-nora-stats-row">
+                    <div class="chatbot-nora-stats-col">
+                        <h3><?php esc_html_e('Active Chats', 'chatbot-nora'); ?></h3>
+                        <p class="chatbot-nora-stats-number"><?php echo esc_html($stats['active_chats']); ?></p>
                     </div>
-                    <div class="openai-chat-stats-col">
-                        <h3><?php esc_html_e('Total Messages', 'openai-chat'); ?></h3>
-                        <p class="openai-chat-stats-number"><?php echo esc_html($stats['total_messages']); ?></p>
+                    <div class="chatbot-nora-stats-col">
+                        <h3><?php esc_html_e('Total Messages', 'chatbot-nora'); ?></h3>
+                        <p class="chatbot-nora-stats-number"><?php echo esc_html($stats['total_messages']); ?></p>
                     </div>
-                    <div class="openai-chat-stats-col">
-                        <h3><?php esc_html_e('Today\'s Messages', 'openai-chat'); ?></h3>
-                        <p class="openai-chat-stats-number"><?php echo esc_html($stats['today_messages']); ?></p>
+                    <div class="chatbot-nora-stats-col">
+                        <h3><?php esc_html_e('Today\'s Messages', 'chatbot-nora'); ?></h3>
+                        <p class="chatbot-nora-stats-number"><?php echo esc_html($stats['today_messages']); ?></p>
                     </div>
-                    <div class="openai-chat-stats-col">
-                        <h3><?php esc_html_e('Average Messages/Chat', 'openai-chat'); ?></h3>
-                        <p class="openai-chat-stats-number"><?php echo esc_html($stats['avg_messages']); ?></p>
+                    <div class="chatbot-nora-stats-col">
+                        <h3><?php esc_html_e('Average Messages/Chat', 'chatbot-nora'); ?></h3>
+                        <p class="chatbot-nora-stats-number"><?php echo esc_html($stats['avg_messages']); ?></p>
                     </div>
                 </div>
 
-                <div class="openai-chat-stats-chart-container">
-                    <h3><?php esc_html_e('Chat Activity', 'openai-chat'); ?></h3>
-                    <div class="openai-chat-stats-chart-wrapper">
-                        <canvas id="openai-chat-stats-chart" width="800" height="300"></canvas>
+                <div class="chatbot-nora-stats-chart-container">
+                    <h3><?php esc_html_e('Chat Activity', 'chatbot-nora'); ?></h3>
+                    <div class="chatbot-nora-stats-chart-wrapper">
+                        <canvas id="chatbot-nora-stats-chart" width="800" height="300"></canvas>
                     </div>
                 </div>
             </div>
         </div>
         <style>
-            .openai-chat-stats-container {
+            .chatbot-nora-stats-container {
                 margin-top: 20px;
             }
-            .openai-chat-stats-row {
+            .chatbot-nora-stats-row {
                 display: flex;
                 margin-bottom: 20px;
                 gap: 20px;
             }
-            .openai-chat-stats-col {
+            .chatbot-nora-stats-col {
                 flex: 1;
                 text-align: center;
                 padding: 20px;
@@ -81,29 +81,29 @@ class OpenAI_Chat_Stats {
                 border-radius: 4px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
-            .openai-chat-stats h3 {
+            .chatbot-nora-stats h3 {
                 margin: 0 0 5px 0;
                 font-size: 14px;
                 color: #666;
             }
-            .openai-chat-stats-number {
+            .chatbot-nora-stats-number {
                 margin: 0;
                 font-size: 24px;
                 font-weight: bold;
                 color: #0073aa;
             }
-            .openai-chat-stats-chart-container {
+            .chatbot-nora-stats-chart-container {
                 background: #fff;
                 padding: 20px;
                 border-radius: 4px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
-            .openai-chat-stats-chart-container h3 {
+            .chatbot-nora-stats-chart-container h3 {
                 margin: 0 0 20px 0;
                 font-size: 16px;
                 color: #23282d;
             }
-            .openai-chat-stats-chart-wrapper {
+            .chatbot-nora-stats-chart-wrapper {
                 width: 800px;
                 height: 300px;
                 margin: 0 auto;
@@ -120,7 +120,7 @@ class OpenAI_Chat_Stats {
                             labels: labels,
                             datasets: [
                                 {
-                                    label: '<?php esc_html_e('Messages', 'openai-chat'); ?>',
+                                    label: '<?php esc_html_e('Messages', 'chatbot-nora'); ?>',
                                     data: messagesData,
                                     borderColor: '#0073aa',
                                     backgroundColor: 'rgba(0, 115, 170, 0.1)',
@@ -128,7 +128,7 @@ class OpenAI_Chat_Stats {
                                     tension: 0.4
                                 },
                                 {
-                                    label: '<?php esc_html_e('Sessions', 'openai-chat'); ?>',
+                                    label: '<?php esc_html_e('Sessions', 'chatbot-nora'); ?>',
                                     data: sessionsData,
                                     borderColor: '#46b450',
                                     backgroundColor: 'rgba(70, 180, 80, 0.1)',
@@ -170,7 +170,7 @@ class OpenAI_Chat_Stats {
 
                 function checkAndCreateChart() {
                     if (messagesData && sessionsData && labels) {
-                        createChart('openai-chat-stats-chart', messagesData, sessionsData, labels);
+                        createChart('chatbot-nora-stats-chart', messagesData, sessionsData, labels);
                     }
                 }
 
@@ -294,6 +294,9 @@ class OpenAI_Chat_Stats {
             $labels[] = date('M j', strtotime($date));
         }
 
+        error_log('OpenAI Chat: Stats data - ' . print_r($data, true));
+        error_log('OpenAI Chat: Stats labels - ' . print_r($labels, true));
+
         wp_send_json_success(array(
             'data' => $data,
             'labels' => $labels
@@ -305,9 +308,11 @@ class OpenAI_Chat_Stats {
      */
     public function enqueue_scripts(): void {
         // Only load on our page
-        if (!isset($_GET['page']) || $_GET['page'] !== 'openai-chat-logs') {
+        if (!isset($_GET['page']) || $_GET['page'] !== 'chatbot-nora-logs') {
             return;
         }
+
+        error_log('OpenAI Chat: Enqueueing scripts for stats page');
 
         // Enqueue Chart.js
         wp_enqueue_script(
