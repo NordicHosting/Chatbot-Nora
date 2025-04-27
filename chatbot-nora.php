@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('OPENAI_CHAT_VERSION', '1.1.2');
+define('OPENAI_CHAT_VERSION', '1.1.3');
 define('OPENAI_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('OPENAI_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('OPENAI_CHAT_PLUGIN_BASENAME', plugin_basename(__FILE__));
