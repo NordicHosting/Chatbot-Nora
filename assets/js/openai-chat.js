@@ -206,8 +206,20 @@
         });
 
         // Add click handler for end button
+        let isConfirmingEnd = false;
         $end.html('×').attr('data-tooltip', 'Avslutt chat').on('click', function() {
-            if (confirm(openaiChat.i18n.endChatConfirm)) {
+            if (!isConfirmingEnd) {
+                // First click - show confirmation state
+                isConfirmingEnd = true;
+                $end.html('Avslutt chat?').addClass('confirming').attr('data-tooltip', 'Avslutt chat');
+                $form.addClass('confirming');
+                setTimeout(() => {
+                    isConfirmingEnd = false;
+                    $end.html('×').removeClass('confirming').attr('data-tooltip', 'Avslutt chat');
+                    $form.removeClass('confirming');
+                }, 3000); // Reset after 3 seconds
+            } else {
+                // Second click - actually end the chat
                 // Clear chat state
                 localStorage.removeItem('openaiChatState');
                 localStorage.removeItem('openaiChatUserInfo');

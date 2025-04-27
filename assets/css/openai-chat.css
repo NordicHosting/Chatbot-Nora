@@ -97,6 +97,11 @@
     display: flex;
     gap: 10px;
     background: #fff;
+    transition: all 0.2s ease;
+}
+
+.openai-chat-form.confirming {
+    gap: 5px;
 }
 
 .openai-chat-input {
@@ -106,6 +111,14 @@
     border-radius: var(--border-radius);
     outline: none;
     font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.openai-chat-form.confirming .openai-chat-input {
+    width: 100px;
+    flex: none;
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .openai-chat-input:focus {
@@ -121,6 +134,11 @@
     cursor: pointer;
     transition: background 0.3s ease;
     font-size: 14px;
+}
+
+.openai-chat-form.confirming .openai-chat-submit {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .openai-chat-submit:hover {
@@ -244,6 +262,23 @@
     font-size: 20px;
     line-height: 1;
     position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Confirmation state styles */
+.openai-chat-end.confirming {
+    width: auto;
+    min-width: auto;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: var(--border-radius);
+    background-color: #fff3f3;
+    height: auto;
+}
+
+.openai-chat-end.confirming:hover {
+    background-color: #ffe6e6;
 }
 
 .openai-chat-end:hover {
