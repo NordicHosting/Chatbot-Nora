@@ -1,42 +1,47 @@
-.openai-chat-container {
+/* Chatbot Nora Frontend Styles */
+.chatbot-nora-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
     width: 350px;
     height: 500px;
     background: #fff;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     z-index: 999999;
     transition: all 0.3s ease;
-    font-size: 14px;
+    overflow: hidden;
 }
 
-.openai-chat-container.minimized {
+.chatbot-nora-container.minimized {
     height: 60px;
     overflow: hidden;
 }
 
-.openai-chat-header {
-    background: var(--primary-color);
+.chatbot-nora-container.minimized .chatbot-nora-messages,
+.chatbot-nora-container.minimized .chatbot-nora-form {
+    display: none;
+}
+
+.chatbot-nora-header {
+    background: #0073aa;
     color: #fff;
     padding: 10px 15px;
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     cursor: pointer;
 }
 
-.openai-chat-title {
-    margin: 0;
+.chatbot-nora-title {
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
+    margin: 0;
 }
 
-.openai-chat-toggle {
+.chatbot-nora-toggle {
     background: none;
     border: none;
     color: #fff;
@@ -44,45 +49,34 @@
     padding: 5px;
 }
 
-.openai-chat-messages {
+.chatbot-nora-messages {
     flex: 1;
-    padding: 15px;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: #f8f9fa;
+    padding: 15px;
+    background: #f5f5f5;
 }
 
-.openai-chat-message {
+.chatbot-nora-message {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
     max-width: 80%;
-    padding: 12px 15px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    line-height: 1.4;
-    position: relative;
-    border-radius: 12px;
 }
 
-.openai-chat-message-user {
-    background: var(--primary-color);
+.chatbot-nora-message-user {
+    background: #0073aa;
     color: #fff;
-    align-self: flex-end;
-    margin-left: 20%;
-    border-bottom-right-radius: 4px;
+    margin-left: auto;
 }
 
-.openai-chat-message-assistant {
+.chatbot-nora-message-assistant {
     background: #fff;
     color: #333;
-    align-self: flex-start;
-    margin-right: 20%;
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
+    margin-right: auto;
+    border: 1px solid #ddd;
 }
 
-.openai-chat-message-error {
+.chatbot-nora-message-error {
     background: #fff3f3;
     color: #d32f2f;
     border: 1px solid #ffcdd2;
@@ -91,246 +85,184 @@
     border-radius: 8px;
 }
 
-.openai-chat-form {
+.chatbot-nora-form {
     padding: 15px;
-    border-top: 1px solid #eee;
+    background: #fff;
+    border-top: 1px solid #ddd;
     display: flex;
     gap: 10px;
-    background: #fff;
-    transition: all 0.2s ease;
 }
 
-.openai-chat-form.confirming {
+.chatbot-nora-form.confirming {
     gap: 5px;
 }
 
-.openai-chat-input {
+.chatbot-nora-input {
     flex: 1;
-    padding: 10px;
+    padding: 8px 12px;
     border: 1px solid #ddd;
-    border-radius: var(--border-radius);
-    outline: none;
+    border-radius: 4px;
     font-size: 14px;
-    transition: all 0.2s ease;
 }
 
-.openai-chat-form.confirming .openai-chat-input {
+.chatbot-nora-form.confirming .chatbot-nora-input {
     width: 100px;
     flex: none;
     opacity: 0.5;
     pointer-events: none;
 }
 
-.openai-chat-input:focus {
-    border-color: var(--primary-color);
-}
-
-.openai-chat-submit {
-    background: var(--primary-color);
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: background 0.3s ease;
-    font-size: 14px;
-}
-
-.openai-chat-form.confirming .openai-chat-submit {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-.openai-chat-submit:hover {
-    background: var(--secondary-color);
-}
-
-.openai-chat-submit:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-/* Scrollbar styling */
-.openai-chat-messages::-webkit-scrollbar {
-    width: 6px;
-}
-
-.openai-chat-messages::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.openai-chat-messages::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-.openai-chat-messages::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.openai-chat-welcome {
-    padding: 20px;
-    text-align: center;
-}
-
-.openai-chat-welcome h3 {
-    margin: 0 0 10px;
-    color: var(--primary-color);
-    font-size: 18px;
-}
-
-.openai-chat-welcome p {
-    margin: 0 0 20px;
-    color: #666;
-}
-
-.openai-chat-user-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.openai-chat-form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.openai-chat-form-group label {
-    font-weight: 500;
-    color: #333;
-}
-
-.openai-chat-form-group input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: var(--border-radius);
-    font-size: 14px;
-}
-
-.openai-chat-form-group input:focus {
+.chatbot-nora-input:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
 }
 
-.openai-chat-error {
-    color: #d32f2f;
-    font-size: 12px;
-    min-height: 16px;
-}
-
-.openai-chat-start {
-    background: var(--primary-color);
+.chatbot-nora-submit {
+    background: #0073aa;
     color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: var(--border-radius);
-    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    font-size: 14px;
 }
 
-.openai-chat-start:hover {
-    background: var(--secondary-color);
+.chatbot-nora-form.confirming .chatbot-nora-submit {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
-.openai-chat-start:disabled {
+.chatbot-nora-submit:hover {
+    background: #005177;
+}
+
+.chatbot-nora-submit:disabled {
     background: #ccc;
     cursor: not-allowed;
 }
 
-.openai-chat-buttons {
+/* Scrollbar styling */
+.chatbot-nora-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chatbot-nora-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.chatbot-nora-messages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.chatbot-nora-messages::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.chatbot-nora-welcome {
+    padding: 20px;
+    text-align: center;
+}
+
+.chatbot-nora-welcome h3 {
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.chatbot-nora-welcome p {
+    margin: 0 0 20px;
+    color: #666;
+}
+
+.chatbot-nora-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chatbot-nora-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.chatbot-nora-form-group label {
+    font-size: 14px;
+    color: #333;
+}
+
+.chatbot-nora-form-group input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.chatbot-nora-form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.chatbot-nora-error {
+    color: #ff4444;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.chatbot-nora-start {
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.chatbot-nora-start:hover {
+    background: #005177;
+}
+
+.chatbot-nora-start:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.chatbot-nora-buttons {
     display: flex;
     gap: 8px;
     margin-top: 8px;
+    justify-content: flex-end;
 }
 
-.openai-chat-end {
-    background-color: transparent;
-    color: #dc3545;
+.chatbot-nora-end {
+    background: #ff4444;
+    color: #fff;
     border: none;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    line-height: 1;
-    position: relative;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-/* Confirmation state styles */
-.openai-chat-end.confirming {
-    width: auto;
-    min-width: auto;
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: var(--border-radius);
-    background-color: #fff3f3;
-    height: auto;
-}
-
-.openai-chat-end.confirming:hover {
-    background-color: #ffe6e6;
-}
-
-.openai-chat-end:hover {
-    background-color: #fff3f3;
-    color: #dc3545;
-}
-
-.openai-chat-end:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
-}
-
-/* Tooltip styling */
-.openai-chat-end::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    background-color: #333;
-    color: white;
+    padding: 8px 15px;
     border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
-    margin-bottom: 5px;
+    cursor: pointer;
+    font-size: 14px;
 }
 
-.openai-chat-end:hover::after {
-    opacity: 1;
-    visibility: visible;
+.chatbot-nora-end:hover {
+    background: #cc0000;
 }
 
-.openai-chat-end::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 5px;
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
-    margin-bottom: -5px;
-}
-
-.openai-chat-end:hover::before {
-    opacity: 1;
-    visibility: visible;
+/* Responsive styles */
+@media (max-width: 480px) {
+    .chatbot-nora-container {
+        width: 100%;
+        height: 100%;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+    
+    .chatbot-nora-container.minimized {
+        height: 60px;
+        border-radius: 0;
+    }
 } 
