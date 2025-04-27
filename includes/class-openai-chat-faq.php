@@ -34,35 +34,35 @@ class OpenAI_Chat_FAQ {
      */
     public function register_faq_post_type(): void {
         $labels = array(
-            'name'                  => _x('FAQs', 'Post Type General Name', 'openai-chat'),
-            'singular_name'         => _x('FAQ', 'Post Type Singular Name', 'openai-chat'),
-            'menu_name'            => __('FAQs', 'openai-chat'),
-            'name_admin_bar'       => __('FAQ', 'openai-chat'),
-            'archives'             => __('FAQ Archives', 'openai-chat'),
-            'attributes'           => __('FAQ Attributes', 'openai-chat'),
-            'parent_item_colon'    => __('Parent FAQ:', 'openai-chat'),
-            'all_items'            => __('All FAQs', 'openai-chat'),
-            'add_new_item'         => __('Add New FAQ', 'openai-chat'),
-            'add_new'              => __('Add New', 'openai-chat'),
-            'new_item'             => __('New FAQ', 'openai-chat'),
-            'edit_item'            => __('Edit FAQ', 'openai-chat'),
-            'update_item'          => __('Update FAQ', 'openai-chat'),
-            'view_item'            => __('View FAQ', 'openai-chat'),
-            'view_items'           => __('View FAQs', 'openai-chat'),
-            'search_items'         => __('Search FAQ', 'openai-chat'),
-            'not_found'            => __('Not found', 'openai-chat'),
-            'not_found_in_trash'   => __('Not found in Trash', 'openai-chat'),
+            'name'                  => _x('FAQs', 'Post Type General Name', 'chatbot-nora'),
+            'singular_name'         => _x('FAQ', 'Post Type Singular Name', 'chatbot-nora'),
+            'menu_name'            => __('FAQs', 'chatbot-nora'),
+            'name_admin_bar'       => __('FAQ', 'chatbot-nora'),
+            'archives'             => __('FAQ Archives', 'chatbot-nora'),
+            'attributes'           => __('FAQ Attributes', 'chatbot-nora'),
+            'parent_item_colon'    => __('Parent FAQ:', 'chatbot-nora'),
+            'all_items'            => __('All FAQs', 'chatbot-nora'),
+            'add_new_item'         => __('Add New FAQ', 'chatbot-nora'),
+            'add_new'              => __('Add New', 'chatbot-nora'),
+            'new_item'             => __('New FAQ', 'chatbot-nora'),
+            'edit_item'            => __('Edit FAQ', 'chatbot-nora'),
+            'update_item'          => __('Update FAQ', 'chatbot-nora'),
+            'view_item'            => __('View FAQ', 'chatbot-nora'),
+            'view_items'           => __('View FAQs', 'chatbot-nora'),
+            'search_items'         => __('Search FAQ', 'chatbot-nora'),
+            'not_found'            => __('Not found', 'chatbot-nora'),
+            'not_found_in_trash'   => __('Not found in Trash', 'chatbot-nora'),
         );
 
         $args = array(
-            'label'               => __('FAQ', 'openai-chat'),
-            'description'         => __('Frequently Asked Questions', 'openai-chat'),
+            'label'               => __('FAQ', 'chatbot-nora'),
+            'description'         => __('Frequently Asked Questions', 'chatbot-nora'),
             'labels'              => $labels,
             'supports'            => array('title', 'editor', 'custom-fields'),
             'hierarchical'        => false,
             'public'              => true,
             'show_ui'             => true,
-            'show_in_menu'        => 'openai-chat',
+            'show_in_menu'        => 'chatbot-nora',
             'menu_position'       => 6,
             'menu_icon'           => 'dashicons-editor-help',
             'show_in_admin_bar'   => true,
@@ -73,6 +73,8 @@ class OpenAI_Chat_FAQ {
             'publicly_queryable'  => true,
             'capability_type'     => 'post',
             'show_in_rest'        => true,
+            'rest_base'           => 'faqs',
+            'rest_controller_class' => 'WP_REST_Posts_Controller',
         );
 
         register_post_type('faq', $args);
@@ -84,7 +86,7 @@ class OpenAI_Chat_FAQ {
     public function add_faq_meta_box(): void {
         add_meta_box(
             'faq_meta_box',
-            __('FAQ Details', 'openai-chat'),
+            __('FAQ Details', 'chatbot-nora'),
             array($this, 'render_faq_meta_box'),
             'faq',
             'normal',
@@ -106,11 +108,11 @@ class OpenAI_Chat_FAQ {
         // Output fields
         ?>
         <p>
-            <label for="faq_keywords"><?php _e('Keywords (comma separated):', 'openai-chat'); ?></label>
+            <label for="faq_keywords"><?php _e('Keywords (comma separated):', 'chatbot-nora'); ?></label>
             <input type="text" id="faq_keywords" name="faq_keywords" value="<?php echo esc_attr($keywords); ?>" class="widefat">
         </p>
         <p>
-            <label for="faq_category"><?php _e('Category:', 'openai-chat'); ?></label>
+            <label for="faq_category"><?php _e('Category:', 'chatbot-nora'); ?></label>
             <input type="text" id="faq_category" name="faq_category" value="<?php echo esc_attr($category); ?>" class="widefat">
         </p>
         <?php
