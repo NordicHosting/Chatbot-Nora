@@ -206,7 +206,7 @@
         });
 
         // Add click handler for end button
-        $end.on('click', function() {
+        $end.html('×').attr('data-tooltip', 'Avslutt chat').on('click', function() {
             if (confirm(openaiChat.i18n.endChatConfirm)) {
                 // Clear chat state
                 localStorage.removeItem('openaiChatState');
