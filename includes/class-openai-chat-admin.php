@@ -35,22 +35,33 @@ class OpenAI_Chat_Admin {
     public function add_admin_menu(): void {
         // Add main menu
         add_menu_page(
-            __('OpenAI Chat Settings', 'openai-chat'),
-            __('OpenAI Chat', 'openai-chat'),
+            __('Chatbot Nora Settings', 'chatbot-nora'),
+            __('Chatbot Nora', 'chatbot-nora'),
             'manage_options',
-            'openai-chat',
+            'chatbot-nora',
             array($this, 'render_settings_page'),
-            'dashicons-format-chat'
+            'dashicons-format-chat',
+            2  // Position i menyen (2 = rett under Dashboard)
         );
 
         // Add settings submenu
         add_submenu_page(
-            'openai-chat',
-            __('OpenAI Chat Settings', 'openai-chat'),
-            __('Settings', 'openai-chat'),
+            'chatbot-nora',
+            __('Chatbot Nora Settings', 'chatbot-nora'),
+            __('Settings', 'chatbot-nora'),
             'manage_options',
-            'openai-chat',
+            'chatbot-nora',
             array($this, 'render_settings_page')
+        );
+
+        // Add logs and statistics submenu
+        add_submenu_page(
+            'chatbot-nora',
+            __('Chat Logs & Statistics', 'chatbot-nora'),
+            __('Chat Logs & Statistics', 'chatbot-nora'),
+            'manage_options',
+            'chatbot-nora-logs',
+            array($this, 'render_stats_and_logs_page')
         );
     }
 
@@ -259,6 +270,57 @@ class OpenAI_Chat_Admin {
                 </table>
                 <?php submit_button(); ?>
             </form>
+        </div>
+        <?php
+    }
+
+    /**
+     * Render logs and statistics page
+     */
+    public function render_stats_and_logs_page(): void {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Vis statistikk øverst
+        require_once plugin_dir_path(__FILE__) . 'class-openai-chat-stats.php';
+        $stats = new OpenAI_Chat_Stats();
+        $stats->render_admin_page();
+
+        // Vis chat-logger under
+        $logs = new OpenAI_Chat_Logs();
+        $logs->render_logs_page();
+    }
+
+    /**
+     * Render FAQ page
+     */
+    public function render_faq_page(): void {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('FAQ', 'chatbot-nora'); ?></h1>
+            
+            <div class="card">
+                <h2><?php esc_html_e('Vanlige spørsmål', 'chatbot-nora'); ?></h2>
+                
+                <h3><?php esc_html_e('Hvordan fungerer Chatbot Nora?', 'chatbot-nora'); ?></h3>
+                <p><?php esc_html_e('Chatbot Nora er en intelligent chatbot basert på OpenAI\'s GPT-teknologi. Den kan svare på spørsmål, hjelpe med problemer og gi generell informasjon.', 'chatbot-nora'); ?></p>
+                
+                <h3><?php esc_html_e('Hvordan konfigurerer jeg API-nøkkelen?', 'chatbot-nora'); ?></h3>
+                <p><?php esc_html_e('Gå til innstillinger-siden og lim inn din OpenAI API-nøkkel i feltet. Du kan få en API-nøkkel fra OpenAI sin nettside.', 'chatbot-nora'); ?></p>
+                
+                <h3><?php esc_html_e('Kan jeg endre utseendet på chatten?', 'chatbot-nora'); ?></h3>
+                <p><?php esc_html_e('Ja, du kan tilpasse farger og utseende i innstillingene. Se "Innstillinger" i admin-menyen.', 'chatbot-nora'); ?></p>
+                
+                <h3><?php esc_html_e('Hvordan ser jeg bruksstatistikk?', 'chatbot-nora'); ?></h3>
+                <p><?php esc_html_e('Gå til "Bruksstatistikk" i admin-menyen for å se oversikt over chat-aktivitet.', 'chatbot-nora'); ?></p>
+                
+                <h3><?php esc_html_e('Hvordan ser jeg chatloggene?', 'chatbot-nora'); ?></h3>
+                <p><?php esc_html_e('Gå til "Chatlogger" i admin-menyen for å se historikk over alle samtaler.', 'chatbot-nora'); ?></p>
+            </div>
         </div>
         <?php
     }

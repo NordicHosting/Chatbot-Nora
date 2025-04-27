@@ -183,4 +183,4 @@ function openai_chat_add_menu_page() {
         'dashicons-format-chat'
     );
 }
-add_action('admin_menu', 'openai_chat_add_menu_page'); 
+add_action('admin_menu', 'openai_chat_add_menu_page');
