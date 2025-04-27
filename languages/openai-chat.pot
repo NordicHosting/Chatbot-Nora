@@ -60,4 +60,36 @@ msgstr ""
 
 #: includes/class-openai-chat-admin.php:100
 msgid "Go to Settings"
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Welcome to the chat!"
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Before we start, we need some information from you."
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Your name"
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Your email (optional)"
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Start chat"
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Please enter your name"
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Please enter a valid email address"
+msgstr ""
+
+#: includes/class-openai-chat-frontend.php:45
+msgid "Hi %s! How can I help you today?"
 msgstr "" 

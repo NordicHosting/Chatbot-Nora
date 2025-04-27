@@ -11,6 +11,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include required files
+require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat.php';
+require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat-logs.php';
+
 /**
  * Handles frontend functionality
  */
@@ -82,10 +86,18 @@ class OpenAI_Chat_Frontend {
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('openai_chat_nonce'),
                 'i18n' => array(
-                    'error' => __('An error occurred. Please try again.', 'openai-chat'),
-                    'emptyMessage' => __('Please enter a message.', 'openai-chat'),
-                    'sending' => __('Sending...', 'openai-chat'),
+                    'error' => get_locale() === 'nb_NO' ? __('Beklager, det oppstod en feil. Vennligst prøv igjen.', 'openai-chat') : __('An error occurred. Please try again.', 'openai-chat'),
+                    'emptyMessage' => get_locale() === 'nb_NO' ? __('Vennligst skriv inn en melding.', 'openai-chat') : __('Please enter a message.', 'openai-chat'),
+                    'sending' => get_locale() === 'nb_NO' ? __('Sender...', 'openai-chat') : __('Sending...', 'openai-chat'),
                     'thinking' => get_locale() === 'nb_NO' ? __('Nora tenker...', 'openai-chat') : __('Nora is thinking...', 'openai-chat'),
+                    'welcomeTitle' => get_locale() === 'nb_NO' ? __('Hei! Jeg er Nora', 'openai-chat') : __('Hi! I am Nora', 'openai-chat'),
+                    'welcomeMessage' => get_locale() === 'nb_NO' ? __('Jeg er en chatbot som fortsatt er under opplæring. Jeg gjør mitt beste for å hjelpe deg, men kan noen ganger gjøre feil. Før vi begynner, trenger jeg litt informasjon fra deg.', 'openai-chat') : __('I am a chatbot that is still in training. I do my best to help you, but I might make mistakes sometimes. Before we start, I need some information from you.', 'openai-chat'),
+                    'nameLabel' => get_locale() === 'nb_NO' ? __('Ditt navn', 'openai-chat') : __('Your name', 'openai-chat'),
+                    'emailLabel' => get_locale() === 'nb_NO' ? __('Din e-postadresse (valgfritt)', 'openai-chat') : __('Your email (optional)', 'openai-chat'),
+                    'startChat' => get_locale() === 'nb_NO' ? __('Start chat', 'openai-chat') : __('Start chat', 'openai-chat'),
+                    'nameRequired' => get_locale() === 'nb_NO' ? __('Vennligst skriv inn ditt navn', 'openai-chat') : __('Please enter your name', 'openai-chat'),
+                    'invalidEmail' => get_locale() === 'nb_NO' ? __('Vennligst skriv inn en gyldig e-postadresse', 'openai-chat') : __('Please enter a valid email address', 'openai-chat'),
+                    'initialMessage' => get_locale() === 'nb_NO' ? __('Hei %s! Hvordan kan jeg hjelpe deg i dag?', 'openai-chat') : __('Hi %s! How can I help you today?', 'openai-chat')
                 )
             )
         );
@@ -236,9 +248,21 @@ class OpenAI_Chat_Frontend {
                 setcookie('openai_chat_session', $session_id, time() + (86400 * 30), '/'); // 30 days
             }
 
+            // Get user info from localStorage
+            $user_info = isset($_POST['user_info']) ? $_POST['user_info'] : null;
+            if ($user_info) {
+                $user_info = json_decode(stripslashes($user_info), true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $user_info = json_encode($user_info);
+                } else {
+                    $user_info = null;
+                }
+            }
+
             // Log messages
+            require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat-logs.php';
             $logs = new OpenAI_Chat_Logs();
-            $logs->log_message($session_id, 'user', $message);
+            $logs->log_message($session_id, 'user', $message, $user_info);
             $logs->log_message($session_id, 'assistant', $body['choices'][0]['message']['content']);
 
             // Update session activity

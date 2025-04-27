@@ -148,4 +148,76 @@
 
 .openai-chat-messages::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+.openai-chat-welcome {
+    padding: 20px;
+    text-align: center;
+}
+
+.openai-chat-welcome h3 {
+    margin: 0 0 10px;
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
+.openai-chat-welcome p {
+    margin: 0 0 20px;
+    color: #666;
+}
+
+.openai-chat-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.openai-chat-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.openai-chat-form-group label {
+    font-weight: 500;
+    color: #333;
+}
+
+.openai-chat-form-group input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+}
+
+.openai-chat-form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.openai-chat-error {
+    color: #d32f2f;
+    font-size: 12px;
+    min-height: 16px;
+}
+
+.openai-chat-start {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.openai-chat-start:hover {
+    background: var(--secondary-color);
+}
+
+.openai-chat-start:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 } 

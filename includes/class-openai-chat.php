@@ -86,6 +86,7 @@ class OpenAI_Chat {
     private function init_frontend(): void {
         // Include frontend class
         require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat-frontend.php';
+        require_once OPENAI_CHAT_PLUGIN_DIR . 'includes/class-openai-chat-logs.php';
         
         // Initialize frontend
         $frontend = new OpenAI_Chat_Frontend();

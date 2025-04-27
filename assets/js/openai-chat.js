@@ -23,6 +23,7 @@
 
         // Load chat state from localStorage
         const chatState = JSON.parse(localStorage.getItem('openaiChatState') || '{"isOpen":false,"messages":[]}');
+        const userInfo = JSON.parse(localStorage.getItem('openaiChatUserInfo') || '{"name":"","email":""}');
         
         // Set initial state
         if (chatState.isOpen) {
@@ -30,14 +31,92 @@
             updateToggleIcon();
         }
         
-        // Load messages
-        if (chatState.messages.length) {
-            const fragment = document.createDocumentFragment();
-            chatState.messages.forEach(message => {
-                const $message = createMessageElement(message.type, message.content);
-                fragment.appendChild($message[0]);
+        // Hide chat form initially
+        $form.hide();
+        
+        // Show welcome message if user info is not set
+        if (!userInfo.name) {
+            showWelcomeMessage();
+        } else {
+            // Load messages if user is authenticated
+            if (chatState.messages.length) {
+                const fragment = document.createDocumentFragment();
+                chatState.messages.forEach(message => {
+                    const $message = createMessageElement(message.type, message.content);
+                    fragment.appendChild($message[0]);
+                });
+                $messages.append(fragment);
+            }
+            // Show chat form for authenticated users
+            $form.show();
+        }
+
+        // Show welcome message with user info form
+        function showWelcomeMessage() {
+            const welcomeHtml = `
+                <div class="openai-chat-welcome">
+                    <h3>${openaiChat.i18n.welcomeTitle}</h3>
+                    <p>${openaiChat.i18n.welcomeMessage}</p>
+                    <form class="openai-chat-user-form">
+                        <div class="openai-chat-form-group">
+                            <label for="user-name">${openaiChat.i18n.nameLabel}</label>
+                            <input type="text" id="user-name" required>
+                            <div class="openai-chat-error" id="name-error"></div>
+                        </div>
+                        <div class="openai-chat-form-group">
+                            <label for="user-email">${openaiChat.i18n.emailLabel}</label>
+                            <input type="email" id="user-email">
+                            <div class="openai-chat-error" id="email-error"></div>
+                        </div>
+                        <button type="submit" class="openai-chat-start">${openaiChat.i18n.startChat}</button>
+                    </form>
+                </div>
+            `;
+            $messages.html(welcomeHtml);
+
+            // Handle user info form submission
+            $('.openai-chat-user-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                const name = $('#user-name').val().trim();
+                const email = $('#user-email').val().trim();
+                let isValid = true;
+
+                // Validate name
+                if (!name) {
+                    $('#name-error').text(openaiChat.i18n.nameRequired);
+                    isValid = false;
+                } else {
+                    $('#name-error').text('');
+                }
+
+                // Validate email if provided
+                if (email && !isValidEmail(email)) {
+                    $('#email-error').text(openaiChat.i18n.invalidEmail);
+                    isValid = false;
+                } else {
+                    $('#email-error').text('');
+                }
+
+                if (isValid) {
+                    // Save user info
+                    localStorage.setItem('openaiChatUserInfo', JSON.stringify({ name, email }));
+                    
+                    // Show initial assistant message
+                    $messages.html('');
+                    addMessage('assistant', openaiChat.i18n.initialMessage.replace('%s', name));
+                    
+                    // Enable chat form
+                    $form.show();
+                    $input.focus();
+                }
             });
-            $messages.append(fragment);
+        }
+
+        // Email validation helper
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
         }
 
         // Toggle chat window
@@ -96,7 +175,8 @@
                 data: {
                     action: 'openai_chat_send_message',
                     nonce: openaiChat.nonce,
-                    message: message
+                    message: message,
+                    user_info: JSON.stringify(JSON.parse(localStorage.getItem('openaiChatUserInfo')))
                 },
                 beforeSend: function() {
                     $submit.prop('disabled', true);

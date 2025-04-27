@@ -43,25 +43,37 @@ class OpenAI_Chat_Logs {
     /**
      * Log a chat message
      */
-    public function log_message(string $session_id, string $type, string $content): void {
+    public function log_message(string $session_id, string $type, string $content, ?string $user_info = null): void {
         global $wpdb;
         
-        $wpdb->insert(
-            $wpdb->prefix . 'openai_chat_messages',
+        // Verify table exists
+        $table_name = $wpdb->prefix . 'openai_chat_messages';
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+            error_log('OpenAI Chat: Messages table does not exist');
+            return;
+        }
+        
+        $result = $wpdb->insert(
+            $table_name,
             array(
                 'session_id' => $session_id,
                 'message_type' => $type,
                 'content' => $content,
+                'user_info' => $user_info,
                 'created_at' => current_time('mysql')
             ),
-            array('%s', '%s', '%s', '%s')
+            array('%s', '%s', '%s', '%s', '%s')
         );
+
+        if ($result === false) {
+            error_log('OpenAI Chat: Failed to log message - ' . $wpdb->last_error);
+        }
     }
 
     /**
      * Get chat logs
      */
-    private function get_logs(int $limit = 50, ?string $session_id = null): array {
+    public function get_logs(?string $session_id = null, int $limit = 100): array {
         global $wpdb;
         
         $where = '';
@@ -116,8 +128,12 @@ class OpenAI_Chat_Logs {
      * Render logs page
      */
     public function render_logs_page(): void {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
         $session_id = isset($_GET['session_id']) ? sanitize_text_field($_GET['session_id']) : null;
-        $logs = $this->get_logs(50, $session_id);
+        $logs = $this->get_logs($session_id);
         $sessions = $this->get_session_ids();
         ?>
         <div class="wrap">
@@ -139,12 +155,20 @@ class OpenAI_Chat_Logs {
                 </div>
             </div>
 
+            <?php if ($session_id): ?>
+                <p>
+                    <a href="?page=openai-chat-logs" class="button">
+                        <?php esc_html_e('Back to all logs', 'openai-chat'); ?>
+                    </a>
+                </p>
+            <?php endif; ?>
+
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Time', 'openai-chat'); ?></th>
+                        <th><?php esc_html_e('User', 'openai-chat'); ?></th>
                         <th><?php esc_html_e('Session ID', 'openai-chat'); ?></th>
-                        <th><?php esc_html_e('Type', 'openai-chat'); ?></th>
                         <th><?php esc_html_e('Content', 'openai-chat'); ?></th>
                     </tr>
                 </thead>
@@ -153,11 +177,27 @@ class OpenAI_Chat_Logs {
                         <tr class="message-type-<?php echo esc_attr($log['message_type']); ?>">
                             <td><?php echo esc_html($log['created_at']); ?></td>
                             <td>
+                                <?php
+                                if ($log['message_type'] === 'user') {
+                                    if (!empty($log['user_info'])) {
+                                        $user_info = json_decode($log['user_info'], true);
+                                        echo '<strong>' . esc_html($user_info['name']) . '</strong>';
+                                        if (!empty($user_info['email'])) {
+                                            echo '<br><small>' . esc_html($user_info['email']) . '</small>';
+                                        }
+                                    } else {
+                                        echo '<strong>' . esc_html__('User', 'openai-chat') . '</strong>';
+                                    }
+                                } else {
+                                    echo '<strong>Nora</strong>';
+                                }
+                                ?>
+                            </td>
+                            <td>
                                 <a href="?page=openai-chat-logs&session_id=<?php echo esc_attr($log['session_id']); ?>">
                                     <?php echo esc_html(substr($log['session_id'], 0, 8) . '...'); ?>
                                 </a>
                             </td>
-                            <td><?php echo esc_html($log['message_type']); ?></td>
                             <td><?php echo wp_kses_post($log['content']); ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -176,6 +216,10 @@ class OpenAI_Chat_Logs {
                 }
                 #session-filter {
                     margin-right: 10px;
+                }
+                .wp-list-table td small {
+                    color: #666;
+                    font-size: 12px;
                 }
             </style>
 

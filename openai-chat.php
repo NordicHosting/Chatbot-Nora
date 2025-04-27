@@ -61,6 +61,7 @@ function openai_chat_activate() {
         session_id varchar(36) NOT NULL,
         message_type varchar(20) NOT NULL,
         content text NOT NULL,
+        user_info text DEFAULT NULL,
         created_at datetime NOT NULL,
         PRIMARY KEY  (id),
         KEY session_id (session_id)
@@ -76,14 +77,24 @@ function openai_chat_activate() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     
     // Create tables separately for better error handling
-    $messages_result = $wpdb->query($messages_table);
-    if ($messages_result === false) {
+    $messages_result = dbDelta($messages_table);
+    if (empty($messages_result)) {
         error_log('OpenAI Chat: Failed to create messages table - ' . $wpdb->last_error);
     }
 
-    $sessions_result = $wpdb->query($sessions_table);
-    if ($sessions_result === false) {
+    $sessions_result = dbDelta($sessions_table);
+    if (empty($sessions_result)) {
         error_log('OpenAI Chat: Failed to create sessions table - ' . $wpdb->last_error);
+    }
+
+    // Check if user_info column exists
+    $table_name = $wpdb->prefix . 'openai_chat_messages';
+    $column_exists = $wpdb->get_var("SHOW COLUMNS FROM $table_name LIKE 'user_info'");
+    
+    if (!$column_exists) {
+        // Add user_info column
+        $wpdb->query("ALTER TABLE $table_name ADD COLUMN user_info text DEFAULT NULL");
+        error_log('OpenAI Chat: Added user_info column to messages table');
     }
 
     // Verify tables exist
