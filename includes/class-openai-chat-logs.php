@@ -24,6 +24,9 @@ class OpenAI_Chat_Logs {
         
         // Add AJAX handler for clearing logs
         add_action('wp_ajax_openai_chat_clear_logs', array($this, 'clear_logs'));
+
+        // Enqueue admin styles
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
     }
 
     /**
@@ -201,12 +204,12 @@ class OpenAI_Chat_Logs {
                 </p>
             <?php endif; ?>
 
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped openai-chat-logs-table">
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Time', 'openai-chat'); ?></th>
-                        <th><?php esc_html_e('User', 'openai-chat'); ?></th>
                         <th><?php esc_html_e('Session ID', 'openai-chat'); ?></th>
+                        <th><?php esc_html_e('User', 'openai-chat'); ?></th>
                         <th><?php esc_html_e('Content', 'openai-chat'); ?></th>
                     </tr>
                 </thead>
@@ -222,28 +225,33 @@ class OpenAI_Chat_Logs {
                         }
                     ?>
                         <tr class="message-type-<?php echo esc_attr($log['message_type']); ?>">
-                            <td><?php echo esc_html($log['created_at']); ?></td>
                             <td>
-                                <?php
-                                if ($log['message_type'] === 'user') {
-                                    if (!empty($log['user_info'])) {
-                                        $user_info = json_decode($log['user_info'], true);
-                                        echo '<strong>' . esc_html($user_info['name']) . '</strong>';
-                                        if (!empty($user_info['email'])) {
-                                            echo '<br><small>' . esc_html($user_info['email']) . '</small>';
-                                        }
-                                    } else {
-                                        echo '<strong>' . esc_html__('User', 'openai-chat') . '</strong>';
-                                    }
-                                } else {
-                                    echo '<strong>Nora</strong>';
-                                }
+                                <?php 
+                                $date = new DateTime($log['created_at']);
+                                echo esc_html($date->format('d.m.Y H:i:s')); 
                                 ?>
                             </td>
                             <td>
                                 <a href="?page=openai-chat-logs&session_id=<?php echo esc_attr($log['session_id']); ?>">
                                     <?php echo esc_html(substr($log['session_id'], 0, 8) . '...'); ?>
                                 </a>
+                            </td>
+                            <td>
+                                <?php
+                                if ($log['message_type'] === 'user') {
+                                    if (!empty($log['user_info'])) {
+                                        $user_info = json_decode($log['user_info'], true);
+                                        echo esc_html($user_info['name']);
+                                        if (!empty($user_info['email'])) {
+                                            echo '<br><small>' . esc_html($user_info['email']) . '</small>';
+                                        }
+                                    } else {
+                                        echo esc_html__('User', 'openai-chat');
+                                    }
+                                } else {
+                                    echo 'Nora';
+                                }
+                                ?>
                             </td>
                             <td><?php echo wp_kses_post($log['content']); ?></td>
                         </tr>
@@ -319,6 +327,18 @@ class OpenAI_Chat_Logs {
             "SELECT DISTINCT DATE(created_at) 
              FROM {$wpdb->prefix}openai_chat_messages 
              ORDER BY created_at DESC"
+        );
+    }
+
+    /**
+     * Enqueue admin styles
+     */
+    public function enqueue_admin_styles(): void {
+        wp_enqueue_style(
+            'openai-chat-admin',
+            plugins_url('assets/css/admin.css', dirname(__FILE__)),
+            array(),
+            OPENAI_CHAT_VERSION
         );
     }
 } 
