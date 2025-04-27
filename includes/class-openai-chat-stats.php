@@ -19,28 +19,11 @@ class OpenAI_Chat_Stats {
      * Initialize statistics functionality
      */
     public function init(): void {
-        // Add admin menu
-        add_action('admin_menu', array($this, 'add_admin_menu'));
-
         // Add AJAX handler for stats
         add_action('wp_ajax_openai_chat_get_stats', array($this, 'get_stats'));
 
         // Enqueue scripts
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
-    }
-
-    /**
-     * Add admin menu
-     */
-    public function add_admin_menu(): void {
-        add_submenu_page(
-            'openai-chat',
-            __('Statistics', 'openai-chat'),
-            __('Statistics', 'openai-chat'),
-            'manage_options',
-            'openai-chat-stats',
-            array($this, 'render_admin_page')
-        );
     }
 
     /**
@@ -322,7 +305,7 @@ class OpenAI_Chat_Stats {
      */
     public function enqueue_scripts(): void {
         // Only load on our page
-        if (!isset($_GET['page']) || $_GET['page'] !== 'openai-chat-stats') {
+        if (!isset($_GET['page']) || $_GET['page'] !== 'openai-chat-logs') {
             return;
         }
 

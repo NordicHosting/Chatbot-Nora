@@ -27,16 +27,16 @@ class OpenAI_Chat_Logs {
     }
 
     /**
-     * Add menu page for logs
+     * Add menu page for logs and stats
      */
     public function add_menu_page(): void {
         add_submenu_page(
             'openai-chat',
-            __('Chat Logs', 'openai-chat'),
-            __('Chat Logs', 'openai-chat'),
+            __('Chat Logs & Statistics', 'openai-chat'),
+            __('Chat Logs & Statistics', 'openai-chat'),
             'manage_options',
             'openai-chat-logs',
-            array($this, 'render_logs_page')
+            array($this, 'render_stats_and_logs_page')
         );
     }
 
@@ -125,6 +125,23 @@ class OpenAI_Chat_Logs {
     }
 
     /**
+     * Render both statistics and logs on the same page
+     */
+    public function render_stats_and_logs_page(): void {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Vis statistikk øverst
+        require_once plugin_dir_path(__FILE__) . 'class-openai-chat-stats.php';
+        $stats = new OpenAI_Chat_Stats();
+        $stats->render_admin_page();
+
+        // Vis chat-logger under
+        $this->render_logs_page();
+    }
+
+    /**
      * Render logs page
      */
     public function render_logs_page(): void {
@@ -133,6 +150,9 @@ class OpenAI_Chat_Logs {
         }
 
         $session_id = isset($_GET['session_id']) ? sanitize_text_field($_GET['session_id']) : null;
+        $date_filter = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : null;
+        $user_type = isset($_GET['user_type']) ? sanitize_text_field($_GET['user_type']) : null;
+        
         $logs = $this->get_logs($session_id);
         $sessions = $this->get_session_ids();
         ?>
@@ -149,6 +169,24 @@ class OpenAI_Chat_Logs {
                             </option>
                         <?php endforeach; ?>
                     </select>
+
+                    <select id="date-filter">
+                        <option value=""><?php esc_html_e('All Dates', 'openai-chat'); ?></option>
+                        <?php
+                        $dates = $this->get_unique_dates();
+                        foreach ($dates as $date): ?>
+                            <option value="<?php echo esc_attr($date); ?>" <?php selected($date_filter, $date); ?>>
+                                <?php echo esc_html(date_i18n(get_option('date_format'), strtotime($date))); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <select id="user-type-filter">
+                        <option value=""><?php esc_html_e('All Users', 'openai-chat'); ?></option>
+                        <option value="user" <?php selected($user_type, 'user'); ?>><?php esc_html_e('Users', 'openai-chat'); ?></option>
+                        <option value="assistant" <?php selected($user_type, 'assistant'); ?>><?php esc_html_e('Nora', 'openai-chat'); ?></option>
+                    </select>
+
                     <button type="button" class="button" id="clear-logs">
                         <?php esc_html_e('Clear All Logs', 'openai-chat'); ?>
                     </button>
@@ -173,7 +211,16 @@ class OpenAI_Chat_Logs {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($logs as $log): ?>
+                    <?php foreach ($logs as $log): 
+                        // Filtrer etter dato
+                        if ($date_filter && date('Y-m-d', strtotime($log['created_at'])) !== $date_filter) {
+                            continue;
+                        }
+                        // Filtrer etter brukertype
+                        if ($user_type && $log['message_type'] !== $user_type) {
+                            continue;
+                        }
+                    ?>
                         <tr class="message-type-<?php echo esc_attr($log['message_type']); ?>">
                             <td><?php echo esc_html($log['created_at']); ?></td>
                             <td>
@@ -214,7 +261,9 @@ class OpenAI_Chat_Logs {
                 .message-type-error {
                     background-color: #fff0f0;
                 }
-                #session-filter {
+                #session-filter,
+                #date-filter,
+                #user-type-filter {
                     margin-right: 10px;
                 }
                 .wp-list-table td small {
@@ -225,14 +274,20 @@ class OpenAI_Chat_Logs {
 
             <script>
             jQuery(document).ready(function($) {
-                $('#session-filter').on('change', function() {
-                    var sessionId = $(this).val();
-                    if (sessionId) {
-                        window.location.href = '?page=openai-chat-logs&session_id=' + sessionId;
-                    } else {
-                        window.location.href = '?page=openai-chat-logs';
-                    }
-                });
+                function updateFilters() {
+                    var sessionId = $('#session-filter').val();
+                    var date = $('#date-filter').val();
+                    var userType = $('#user-type-filter').val();
+                    
+                    var url = '?page=openai-chat-logs';
+                    if (sessionId) url += '&session_id=' + sessionId;
+                    if (date) url += '&date=' + date;
+                    if (userType) url += '&user_type=' + userType;
+                    
+                    window.location.href = url;
+                }
+
+                $('#session-filter, #date-filter, #user-type-filter').on('change', updateFilters);
 
                 $('#clear-logs').on('click', function() {
                     if (confirm('<?php esc_html_e('Are you sure you want to clear all logs?', 'openai-chat'); ?>')) {
@@ -252,5 +307,18 @@ class OpenAI_Chat_Logs {
             </script>
         </div>
         <?php
+    }
+
+    /**
+     * Get unique dates from logs
+     */
+    private function get_unique_dates(): array {
+        global $wpdb;
+        
+        return $wpdb->get_col(
+            "SELECT DISTINCT DATE(created_at) 
+             FROM {$wpdb->prefix}openai_chat_messages 
+             ORDER BY created_at DESC"
+        );
     }
 } 
