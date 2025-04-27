@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: OpenAI Chat
+ * Plugin Name: Chatbot Nora
  * Plugin URI: https://nordichosting.no/chatbot-nora
  * Description: En intelligent chatbot basert på OpenAI's GPT-teknologi som kan hjelpe besøkende på din WordPress-nettside.
  * Version: 1.1.2
