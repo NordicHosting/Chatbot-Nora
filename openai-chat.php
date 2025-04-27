@@ -3,7 +3,7 @@
  * Plugin Name: OpenAI Chat
  * Plugin URI: https://github.com/NordicHosting/Chatbot-Nora
  * Description: En WordPress plugin som integrerer OpenAI API for chat-funksjonalitet på nettstedet.
- * Version: 1.0.7
+ * Version: 1.1.0
  * Author: Nordic Hosting
  * Author URI: https://nordic.hosting
  * License: GPL v2 or later
@@ -13,7 +13,7 @@
  * GitHub Plugin URI: NordicHosting/Chatbot-Nora
  * GitHub Branch: main
  * Requires PHP: 7.4
- * Tested up to: 6.5
+ * Tested up to: 6.8
  */
 
 // Exit if accessed directly
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('OPENAI_CHAT_VERSION', '1.0.7');
+define('OPENAI_CHAT_VERSION', '1.1.0');
 define('OPENAI_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('OPENAI_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('OPENAI_CHAT_PLUGIN_BASENAME', plugin_basename(__FILE__));
