@@ -97,7 +97,8 @@ class OpenAI_Chat_Frontend {
                     'startChat' => get_locale() === 'nb_NO' ? __('Start chat', 'openai-chat') : __('Start chat', 'openai-chat'),
                     'nameRequired' => get_locale() === 'nb_NO' ? __('Vennligst skriv inn ditt navn', 'openai-chat') : __('Please enter your name', 'openai-chat'),
                     'invalidEmail' => get_locale() === 'nb_NO' ? __('Vennligst skriv inn en gyldig e-postadresse', 'openai-chat') : __('Please enter a valid email address', 'openai-chat'),
-                    'initialMessage' => get_locale() === 'nb_NO' ? __('Hei %s! Hvordan kan jeg hjelpe deg i dag?', 'openai-chat') : __('Hi %s! How can I help you today?', 'openai-chat')
+                    'initialMessage' => get_locale() === 'nb_NO' ? __('Hei %s! Hvordan kan jeg hjelpe deg i dag?', 'openai-chat') : __('Hi %s! How can I help you today?', 'openai-chat'),
+                    'endChatConfirm' => __('Are you sure you want to end this chat? This will clear the chat history.', 'openai-chat')
                 )
             )
         );
@@ -126,9 +127,14 @@ class OpenAI_Chat_Frontend {
                        placeholder="<?php esc_attr_e('Spør om hva som helst', 'openai-chat'); ?>"
                        aria-label="<?php esc_attr_e('Chat message', 'openai-chat'); ?>"
                        required>
-                <button type="submit" class="openai-chat-submit">
-                    <?php esc_html_e('Send', 'openai-chat'); ?>
-                </button>
+                <div class="openai-chat-buttons">
+                    <button type="submit" class="openai-chat-submit">
+                        <?php esc_html_e('Send', 'openai-chat'); ?>
+                    </button>
+                    <button type="button" class="openai-chat-end" aria-label="<?php esc_attr_e('End chat', 'openai-chat'); ?>">
+                        <?php esc_html_e('Avslutt', 'openai-chat'); ?>
+                    </button>
+                </div>
             </form>
         </div>
         <?php

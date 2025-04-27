@@ -12,12 +12,13 @@
         const $form = $container.find('.openai-chat-form');
         const $input = $container.find('.openai-chat-input');
         const $submit = $container.find('.openai-chat-submit');
+        const $end = $container.find('.openai-chat-end');
         const $toggle = $('.openai-chat-toggle');
         const $header = $('.openai-chat-header');
         let thinkingMessage = null;
 
         // Check if required elements exist
-        if (!$container.length || !$messages.length || !$form.length || !$input.length || !$submit.length || !$toggle.length || !$header.length) {
+        if (!$container.length || !$messages.length || !$form.length || !$input.length || !$submit.length || !$end.length || !$toggle.length || !$header.length) {
             return;
         }
 
@@ -202,6 +203,24 @@
                     $messages.scrollTop($messages[0].scrollHeight);
                 }
             });
+        });
+
+        // Add click handler for end button
+        $end.on('click', function() {
+            if (confirm(openaiChat.i18n.endChatConfirm)) {
+                // Clear chat state
+                localStorage.removeItem('openaiChatState');
+                localStorage.removeItem('openaiChatUserInfo');
+                
+                // Reset chat interface
+                $messages.html('');
+                $form.hide();
+                showWelcomeMessage();
+                
+                // Minimize chat
+                $container.addClass('minimized');
+                updateToggleIcon();
+            }
         });
 
         /**

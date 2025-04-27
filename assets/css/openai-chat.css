@@ -220,4 +220,29 @@
 .openai-chat-start:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+.openai-chat-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.openai-chat-end {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.openai-chat-end:hover {
+    background-color: #c82333;
+}
+
+.openai-chat-end:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.5);
 } 
