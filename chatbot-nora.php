@@ -172,15 +172,3 @@ function openai_chat_add_headers($headers) {
     return $headers;
 }
 
-// Add menu page
-function openai_chat_add_menu_page() {
-    add_menu_page(
-        __('Chatbot Nora', 'chatbot-nora'),
-        __('Chatbot Nora', 'chatbot-nora'),
-        'manage_options',
-        'chatbot-nora',
-        'openai_chat_render_admin_page',
-        'dashicons-format-chat'
-    );
-}
-add_action('admin_menu', 'openai_chat_add_menu_page');
