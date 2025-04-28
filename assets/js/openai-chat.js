@@ -124,6 +124,7 @@
         function toggleChat(e) {
             if (e) {
                 e.preventDefault();
+                e.stopPropagation();
             }
             $container.toggleClass('minimized');
             updateToggleIcon();
@@ -134,17 +135,27 @@
             }
         }
 
-        // Update toggle icon based on chat state
+        // Update toggle icon
         function updateToggleIcon() {
             const $icon = $toggle.find('.dashicons');
-            $icon.toggleClass('dashicons-arrow-down-alt2', !$container.hasClass('minimized'))
-                 .toggleClass('dashicons-arrow-up-alt2', $container.hasClass('minimized'));
+            if ($container.hasClass('minimized')) {
+                $icon.removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+            } else {
+                $icon.removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
+            }
         }
 
         // Add click handlers
         $toggle.on('click', toggleChat);
         $header.on('click', function(e) {
             if (!$(e.target).closest('.chatbot-nora-toggle').length) {
+                toggleChat(e);
+            }
+        });
+
+        // Add click handler for minimized container
+        $container.on('click', function(e) {
+            if ($container.hasClass('minimized')) {
                 toggleChat(e);
             }
         });
@@ -205,9 +216,31 @@
             });
         });
 
+        // End chat
+        function endChat() {
+            // First minimize the chat
+            $container.addClass('minimized');
+            updateToggleIcon();
+            
+            // Then clear chat state
+            localStorage.removeItem('openaiChatState');
+            localStorage.removeItem('openaiChatUserInfo');
+            
+            // Reset chat interface
+            $messages.html('');
+            $form.hide();
+            showWelcomeMessage();
+            
+            // Save the minimized state
+            saveChatState();
+        }
+
         // Add click handler for end button
         let isConfirmingEnd = false;
-        $end.html('×').attr('data-tooltip', 'Avslutt chat').on('click', function() {
+        $end.html('×').attr('data-tooltip', 'Avslutt chat').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             if (!isConfirmingEnd) {
                 // First click - show confirmation state
                 isConfirmingEnd = true;
@@ -220,18 +253,7 @@
                 }, 3000); // Reset after 3 seconds
             } else {
                 // Second click - actually end the chat
-                // Clear chat state
-                localStorage.removeItem('openaiChatState');
-                localStorage.removeItem('openaiChatUserInfo');
-                
-                // Reset chat interface
-                $messages.html('');
-                $form.hide();
-                showWelcomeMessage();
-                
-                // Minimize chat
-                $container.addClass('minimized');
-                updateToggleIcon();
+                endChat();
             }
         });
 

@@ -198,7 +198,7 @@ class OpenAI_Chat_Frontend {
         try {
             $faq_knowledge = $this->get_faq_knowledge();
             $system_message = sprintf(
-                'You are Nora, a helpful assistant. Respond in the same language as the user message. If you cannot determine the language, respond in %s. Keep responses concise and helpful.%s',
+                'You are Nora, a helpful assistant for Nordic Hosting. Respond in the same language as the user message. If you cannot determine the language, respond in %s. Keep responses concise and helpful. If you do not know the answer, recommend to contact support directly. %s',
                 get_locale(),
                 $faq_knowledge
             );

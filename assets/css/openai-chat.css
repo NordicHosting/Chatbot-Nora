@@ -15,14 +15,64 @@
     overflow: hidden;
 }
 
+/* Minimert tilstand - rund knapp */
 .chatbot-nora-container.minimized {
-    height: 60px;
-    overflow: hidden;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #0073aa;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    overflow: visible;
 }
 
+/* Skjul innhold når minimert */
+.chatbot-nora-container.minimized .chatbot-nora-header,
 .chatbot-nora-container.minimized .chatbot-nora-messages,
 .chatbot-nora-container.minimized .chatbot-nora-form {
-    display: none;
+    display: none !important;
+}
+
+/* Vis chat-ikon i midten */
+.chatbot-nora-container.minimized::after {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Tooltip ved hover */
+.chatbot-nora-container.minimized:hover::before {
+    content: 'Chat med Nora';
+    position: absolute;
+    right: 70px;
+    bottom: 16px;
+    background: #fff;
+    color: #0073aa;
+    padding: 6px 16px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    font-size: 15px;
+    white-space: nowrap;
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 1000000;
+}
+
+/* Animasjon på hover */
+.chatbot-nora-container.minimized:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+    transform: scale(1.08);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .chatbot-nora-header {

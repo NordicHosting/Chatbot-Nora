@@ -3,7 +3,7 @@
  * Plugin Name: Chatbot Nora
  * Plugin URI: https://github.com/NordicHosting/Chatbot-Nora
  * Description: En intelligent chatbot basert på OpenAI's GPT-teknologi som kan hjelpe besøkende på din WordPress-nettside.
- * Version: 1.1.3
+ * Version: 1.1.4
  * Author: Nordic Hosting
  * Author URI: https://nordic.hosting
  * License: GPL v2 or later
@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('OPENAI_CHAT_VERSION', '1.1.3');
+define('OPENAI_CHAT_VERSION', '1.1.4');
 define('OPENAI_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('OPENAI_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('OPENAI_CHAT_PLUGIN_BASENAME', plugin_basename(__FILE__));
